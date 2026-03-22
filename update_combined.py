@@ -790,8 +790,12 @@ function render(){
       const awayBubble=isBubbleForDay(g.away,g.gender,g.day)?bubbleSVG:"";
       const homeBubble=isBubbleForDay(g.home,g.gender,g.day)?bubbleSVG:"";
       const isMobile = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
-      const awayName=isMobile?(g.awayAbbr||g.awayShort||g.away):g.away;
-      const homeName=isMobile?(g.homeAbbr||g.homeShort||g.home):g.home;
+      function fmtMobile(s){
+        const m=s.match(/^\\(([0-9]+)\\)\\s*(.+)$/);
+        return m ? m[2]+' ('+m[1]+')' : s;
+      }
+      const awayName=isMobile?fmtMobile(g.awayAbbr||g.awayShort||g.away):g.away;
+      const homeName=isMobile?fmtMobile(g.homeAbbr||g.homeShort||g.home):g.home;
 
       if(urlBase)html+="<a href='"+urlBase+"' target='_blank' style='text-decoration:none;color:inherit;display:contents'>";
       html+="<div class='"+barCls+"' style='top:"+yPct+"%;height:"+hPct+"%'>";
