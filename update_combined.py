@@ -791,7 +791,7 @@ function render(){
       const homeBubble=isBubbleForDay(g.home,g.gender,g.day)?bubbleSVG:"";
       const isMobile = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
       function fmtMobile(s){
-        const m=s.match(/^\\(([0-9]+)\\)\\s*(.+)$/);
+        const m=s.match(/^[(]([0-9]+)[)] *(.+)$/);
         return m ? m[2]+' ('+m[1]+')' : s;
       }
       const awayName=isMobile?fmtMobile(g.awayAbbr||g.awayShort||g.away):g.away;
