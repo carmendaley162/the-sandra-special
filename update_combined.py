@@ -484,11 +484,13 @@ function toLocalTime(etStr){
 function toLocalMin(etStr){
   if(!etStr||etStr==='TBD'||etStr==='12:00 AM')return null;
   const local=toLocalTime(etStr);if(!local||local==='TBD'||local==='12:00 AM')return null;
-  const[hm,ap]=local.split(' ');let[h,m]=hm.split(':').map(Number);
+  const[hm,ap]=local.split(' ');
+  const parts=hm.split(':');
+  let h=Number(parts[0]),m=parts.length>1?Number(parts[1]):0;
   if(ap==='PM'&&h!==12)h+=12;if(ap==='AM'&&h===12)h=0;
   return h*60+m;
 }
-function toMin(t){if(!t||t==='TBD'||t==='12:00 AM')return null;const[hm,ap]=t.split(' ');let[h,m]=hm.split(':').map(Number);if(ap==='PM'&&h!==12)h+=12;if(ap==='AM'&&h===12)h=0;return h*60+m;}
+// toMin removed — use toLocalMin everywhere for consistency
 
 const _tzSubEl=document.getElementById('tzSubtitle');
 if(_tzSubEl){
@@ -596,12 +598,12 @@ function render(){
     const roundInfo = INFO[activeDay];
     if(!roundInfo) return;
     const todayGames = G.filter(g=>g.day===activeDay&&g.gender===gender);
-    const todayWithTime = todayGames.filter(g=>toMin(g.time)!==null).length;
+    const todayWithTime = todayGames.filter(g=>toLocalMin(g.time)!==null).length;
     const todayTBD = todayGames.length - todayWithTime;
     if(todayTBD === 0) return;
     const partnerDay = roundInfo.partner;
     const partnerGames = partnerDay ? G.filter(g=>g.day===partnerDay&&g.gender===gender) : [];
-    const partnerWithTime = partnerGames.filter(g=>toMin(g.time)!==null).length;
+    const partnerWithTime = partnerGames.filter(g=>toLocalMin(g.time)!==null).length;
     let blurb = "";
     if(todayWithTime===0 && partnerWithTime===0){
       if(partnerDay){
@@ -612,7 +614,7 @@ function render(){
     } else {
       blurb = todayTBD+" more "+roundInfo.round+" game"+(todayTBD===1?"":"s")+" on "+activeDay+" TBD — check back for the full slate.";
     }
-    const noTimeGames = todayGames.filter(g=>toMin(g.time)===null&&(g.away!=="TBD"||g.home!=="TBD"));
+    const noTimeGames = todayGames.filter(g=>toLocalMin(g.time)===null&&(g.away!=="TBD"||g.home!=="TBD"));
     if(noTimeGames.length){
       const rows = noTimeGames.map(g=>{
         const a = g.away==="TBD"?"TBD":(g.awayShort||g.away);
@@ -762,7 +764,7 @@ function render(){
     html+="<div style='position:absolute;left:"+leftPct+"%;width:"+widthPct+"%;top:0;bottom:0;"+(ni<netsUsed.length-1?"border-right:1px solid var(--border)":"")+"'>";
 
     netGames.forEach(g=>{
-      const s=toMin(g.time);if(!s)return;
+      const s=toLocalMin(g.time);if(!s)return;
       const isWBB = g.gender==='W';
       const isMBB = g.gender==='M';
       const urlBase = isWBB
@@ -789,12 +791,13 @@ function render(){
       const homeWand=cinderellaTeams.has(g.home.replace(/^[(][0-9]+[)] */,"")+"|"+g.gender)?wandSVG:"";
       const awayBubble=isBubbleForDay(g.away,g.gender,g.day)?bubbleSVG:"";
       const homeBubble=isBubbleForDay(g.home,g.gender,g.day)?bubbleSVG:"";
-      function fmtName(s){
+      const isMobile = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+      function fmtMobile(s){
         const m=s.match(/^[(]([0-9]+)[)] *(.+)$/);
         return m ? m[2]+' ('+m[1]+')' : s;
       }
-      const awayName=fmtName(g.awayAbbr||g.awayShort||g.away);
-      const homeName=fmtName(g.homeAbbr||g.homeShort||g.home);
+      const awayName=isMobile?fmtMobile(g.awayAbbr||g.awayShort||g.away):g.away;
+      const homeName=isMobile?fmtMobile(g.homeAbbr||g.homeShort||g.home):g.home;
 
       if(urlBase)html+="<a href='"+urlBase+"' target='_blank' style='text-decoration:none;color:inherit;display:contents'>";
       html+="<div class='"+barCls+"' style='top:"+yPct+"%;height:"+hPct+"%'>";
@@ -813,11 +816,15 @@ function render(){
       html+="<div class='bar-team "+homeCls+"'>"+homeLogoHtml+homeName+homeWand+homeBubble+"</div>";
       if(isFinal&&g.ascore!=null)html+="<div class='bar-score-line'>"+g.ascore+" – "+g.hscore+"</div>";
       if(isUpset)html+="<div class='upset-label'>UNDERDOG UPSET</div>";
-      if(!_isET&&g.time&&g.time!=='TBD'&&g.time!=='12:00 AM'){
+      if(g.time&&g.time!=='TBD'&&g.time!=='12:00 AM'){
         const lt=toLocalTime(g.time);
-        if(lt!==g.time){const _tDisp=lt.replace(':00','');html+="<div style='font-size:7px;color:var(--text3);margin-top:1px'>"+_tDisp+" "+(_isUS?_tzInfo.abbr:'ET')+" start</div>";}
+        if(lt){const _tDisp=lt.replace(':00','');html+="<div style='font-size:7px;color:var(--text3);margin-top:1px'>"+_tDisp+" "+(_isUS?_tzInfo.abbr:'ET')+" start</div>";}
       }
-      if(g.venue&&g.venue!=="TBD")html+="<div class='bar-venue'>"+g.venue+"</div>";
+      if(g.venue&&g.venue!=="TBD"){
+        const vparts=g.venue.split(', ');
+        const vCity=vparts.slice(1).join(', ');
+        html+="<div class='bar-venue'>"+(vCity||g.venue)+"</div>";
+      }
       if(urlBase)html+="<div class='bar-link'>Open page &#8599;</div>";
       html+="</div>";
       if(urlBase)html+="</a>";
