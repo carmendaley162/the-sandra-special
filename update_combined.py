@@ -314,6 +314,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     <div class="guide-item"><span style="display:inline-block;width:32px;height:18px;border-radius:10px;border:3px solid transparent;background-image:linear-gradient(var(--bg),var(--bg)),linear-gradient(to right,var(--wbb) 50%,var(--mbb) 50%);background-origin:border-box;background-clip:padding-box,border-box;flex-shrink:0"></span><div>Split orange/blue — both tournaments playing that day.</div></div>
     <div class="guide-item"><span style="display:inline-block;width:32px;height:18px;border-radius:10px;border:3px solid var(--mbb);box-shadow:0 0 0 2px var(--bg),0 0 0 4px var(--text);flex-shrink:0"></span><div><strong>Bold outer ring</strong> — today's date.</div></div>
     <button class="guide-close" onclick="document.getElementById('guideOverlay').classList.remove('open')">Got it!</button>
+    <p style="font-size:9px;color:var(--text3);text-align:center;margin-top:10px;">data updated %%LAST_UPDATED%% ET</p>
   </div>
 </div>
 
@@ -1309,6 +1310,9 @@ def main():
 
     html = HTML_TEMPLATE.replace("%%WBB_DATA%%", wbb_block)
     html = html.replace("%%MBB_DATA%%", mbb_block)
+    et_now = datetime.now(timezone.utc) - timedelta(hours=4)
+    ts = et_now.strftime("%b %d, %I:%M %p").lstrip("0")
+    html = html.replace("%%LAST_UPDATED%%", ts)
 
     with open(HTML_FILE, "w", encoding="utf-8") as f:
         f.write(html)
