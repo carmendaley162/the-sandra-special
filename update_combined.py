@@ -5,7 +5,7 @@ import os
 import re
 from datetime import datetime, timezone, timedelta
 
-HTML_FILE  = "index-combined.html"
+HTML_FILE  = "index.html"
 BACKUP_DIR = "backup"
 
 HTML_TEMPLATE = """<!DOCTYPE html>
