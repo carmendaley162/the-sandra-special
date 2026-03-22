@@ -1,0 +1,1011 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns=%27http://www.w3.org/2000/svg%27%20viewBox=%270%200%20110%20110%27%3E%3Ctext%20y=%271em%27%20font-size=%2790%27%3E🐱%3C/text%3E%3C/svg%3E">
+<meta property="og:title" content="The Sandra Special">
+<meta property="og:description" content="2026 March Madness combined Men's + Women's viewing schedule. All channels, all games, all overlap. Built by Carmen Daley.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://thesandraspecial.netlify.app/">
+<meta property="og:image" content="https://thesandraspecial.netlify.app/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="The Sandra Special">
+<meta name="twitter:image" content="https://thesandraspecial.netlify.app/og-image.png">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>The Sandra Special</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #ffffff; --bg2: #f5f5f3; --bg3: #efefec;
+    --text: #1a1a18; --text2: #5a5a56; --text3: #9a9a94;
+    --border: rgba(0,0,0,0.12); --border2: rgba(0,0,0,0.22);
+    --red: #E24B4A; --win: #1a6e1a; --radius: 8px;
+    --wbb: #F47B20; --mbb: #1a6ab5;
+    --wbb-bg: #fff8f2; --mbb-bg: #f0f6ff;
+    --wbb-border: rgba(244,123,32,0.45); --mbb-border: rgba(26,106,181,0.45);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1c1c1a; --bg2: #272724; --bg3: #303030;
+      --text: #e8e8e2; --text2: #a0a09a; --text3: #606058;
+      --border: rgba(255,255,255,0.1); --border2: rgba(255,255,255,0.2);
+      --win: #4caf50;
+      --wbb-bg: #2a1e10; --mbb-bg: #0f1e30;
+      --wbb-border: rgba(244,123,32,0.5); --mbb-border: rgba(26,106,181,0.5);
+    }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--text); font-size: 14px; padding: 12px 12px 20px; }
+
+  /* ── ROTATE OVERLAY ── */
+  #rotateOverlay {
+    display: none;
+    position: fixed; inset: 0; z-index: 9999;
+    background: #111;
+    flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 16px; color: #eee; text-align: center; padding: 24px;
+  }
+  #rotateOverlay.show { display: flex; }
+  .rotate-icon { font-size: 52px; animation: spin 2s ease-in-out infinite; transform-origin: center; }
+  @keyframes spin { 0%,100%{transform:rotate(-15deg)} 50%{transform:rotate(15deg)} }
+  #rotateOverlay p { font-size: 14px; line-height: 1.6; max-width: 260px; color: #bbb; }
+  #rotateOverlay strong { color: #fff; font-size: 16px; display: block; margin-bottom: 4px; }
+  #rotateSkip { margin-top: 8px; padding: 10px 24px; border: 1.5px solid #555; border-radius: 20px; background: transparent; color: #999; font-size: 12px; cursor: pointer; font-family: inherit; }
+
+  /* ── HEADER ── */
+  .header-row { display: flex; align-items: center; gap: 8px; margin-bottom: 3px; flex-wrap: wrap; }
+  h1 { font-size: 21px; font-family:'Bebas Neue',sans-serif; letter-spacing:0.04em; white-space:nowrap; }
+  .wbb-accent { color: var(--wbb); }
+  .mbb-accent { color: var(--mbb); }
+  .subtitle { font-size: 11px; color: var(--text3); margin-bottom: 10px; }
+
+  /* ── FILTER TOGGLE ── */
+  .filter-strip { display: flex; gap: 5px; margin-bottom: 10px; }
+  .filter-btn { padding: 4px 12px; border-radius: 14px; border: 1.5px solid var(--border2); background: transparent; color: var(--text2); cursor: pointer; font-size: 11px; font-weight: 600; font-family: inherit; transition: all .15s; }
+  .filter-btn.active-both { background: var(--text); color: var(--bg); border-color: var(--text); }
+  .filter-btn.active-wbb { background: var(--wbb); color: #fff; border-color: var(--wbb); }
+  .filter-btn.active-mbb { background: var(--mbb); color: #fff; border-color: var(--mbb); }
+
+  /* ── DAY TABS ── */
+  .day-tabs { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 10px; }
+  .day-btn { padding: 5px 11px; border-radius: 20px; border: 1px solid var(--border2); background: transparent; color: var(--text2); cursor: pointer; font-size: 11px; line-height: 1.4; text-align: center; font-family: inherit; transition: all .15s; }
+  .day-btn.active { background: var(--text); color: var(--bg); border-color: var(--text); }
+  .day-btn.today { box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px var(--text); font-weight: 700; }
+  .day-btn.today.active { box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px var(--text); }
+  .day-btn.has-wbb { border: 3px solid var(--wbb); }
+  .day-btn.has-mbb { border: 3px solid var(--mbb); }
+  .day-btn.has-both {
+    border: 3px solid transparent;
+    background-image: linear-gradient(var(--bg), var(--bg)), linear-gradient(to right, var(--wbb) 50%, var(--mbb) 50%);
+    background-origin: border-box;
+    background-clip: padding-box, border-box;
+  }
+  .day-btn.active.has-wbb { background: var(--wbb); color: #fff; border-color: var(--wbb); }
+  .day-btn.active.has-mbb { background: var(--mbb); color: #fff; border-color: var(--mbb); }
+  .day-btn.active.has-both { background-image: linear-gradient(to right, var(--wbb) 50%, var(--mbb) 50%); background-origin: padding-box; background-clip: padding-box; color: #fff; border-color: transparent; }
+
+  /* ── STICKY HEADER ── */
+  .sticky-day { position: sticky; top: var(--header-h, 90px); z-index: 30; background: var(--bg); padding: 6px 0 5px; display: flex; flex-direction: column; gap: 2px; border-bottom: 1px solid var(--border); margin-bottom: 10px; }
+  .sticky-day-row { display: flex; align-items: center; gap: 8px; }
+  .sticky-day-summary { font-size: 11px; color: var(--text2); padding: 0 2px 2px; }
+  .sticky-day-pill { display: inline-flex; align-items: center; gap: 6px; background: var(--bg3); border: 1px solid var(--border2); border-radius: 20px; padding: 3px 10px; }
+  .sticky-day-label { font-size: 11px; font-weight: 700; color: var(--text); }
+  .sticky-round-label { font-size: 10px; color: var(--text2); }
+
+  /* ── NAV ARROWS ── */
+  .nav-arrow { position: fixed; top: 50%; transform: translateY(-50%); z-index: 50; width: 28px; height: 56px; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.12); color: rgba(255,255,255,0.7); font-size: 20px; font-weight: 300; border-radius: 4px; cursor: pointer; user-select: none; border: none; font-family: inherit; padding: 0; }
+  .nav-arrow.left { left: 0; border-radius: 0 4px 4px 0; }
+  .nav-arrow.right { right: 0; border-radius: 4px 0 0 4px; }
+  .nav-arrow:active { background: rgba(0,0,0,0.25); }
+  @media (prefers-color-scheme: dark) {
+    .nav-arrow { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.5); }
+  }
+
+  /* ── BANNERS ── */
+  .overlap-note { font-size: 11px; color: var(--text2); margin-bottom: 10px; padding: 7px 12px; background: var(--bg2); border-left: 3px solid var(--border2); border-radius: 0 var(--radius) var(--radius) 0; display: none; }
+  .cinderella-banner { font-size: 10px; color: #7c3aed; margin-bottom: 10px; padding: 7px 12px; background: #f5f3ff; border-left: 3px solid #7c3aed; border-radius: 0 var(--radius) var(--radius) 0; display: none; }
+  @media (prefers-color-scheme: dark) { .cinderella-banner { background: #1e1040; } }
+  .tbd-banner { display:none; font-size:11px; color:var(--text2); margin-bottom:10px; padding:7px 12px; background:var(--bg2); border-left:3px solid #f59e0b; border-radius:0 var(--radius) var(--radius) 0; font-style:italic; }
+
+  /* ── LEGEND ── */
+  .legend { display: flex; gap: 12px; margin-bottom: 10px; font-size: 10px; color: var(--text2); flex-wrap: wrap; align-items: center; }
+  .legend-dot { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; display: inline-block; }
+  .legend-item { display: flex; align-items: center; gap: 4px; }
+
+  /* ── GRID ── */
+  .grid-wrap { width: 100%; }
+  .grid-header { display: flex; position: sticky; top: var(--sticky-h, 42px); z-index: 19; }
+  .corner { flex-shrink: 0; font-size: 10px; color: var(--text3); padding: 5px 6px; border-bottom: 1px solid var(--border); border-right: 1px solid var(--border); background: var(--bg2); display: flex; align-items: flex-end; }
+  .ch-head { flex: 1; font-size: 11px; font-weight: 600; color: var(--text2); text-align: center; padding: 5px 4px; border-bottom: 1px solid var(--border); border-right: 1px solid var(--border); background: var(--bg2); white-space: nowrap; }
+  .ch-head.wbb-ch { color: var(--wbb); }
+  .ch-head.mbb-ch { color: var(--mbb); }
+  .ch-head:last-child { border-right: none; }
+  .grid-body { display: flex; position: relative; }
+  .time-col { flex-shrink: 0; position: relative; border-right: 1px solid var(--border); }
+  .time-label { position: absolute; font-size: 9px; color: var(--text3); right: 5px; white-space: nowrap; transform: translateY(-50%); }
+
+  /* ── GAME BARS ── */
+  .game-bar { position: absolute; left: 3px; right: 3px; border-radius: 5px; padding: 4px 6px; display: flex; flex-direction: column; justify-content: flex-start; overflow: hidden; background: var(--bg2); border: 1px solid var(--border2); }
+  .game-bar.wbb-bar { background: var(--wbb-bg); border: 1.5px solid var(--wbb-border); }
+  .game-bar.mbb-bar { background: var(--mbb-bg); border: 1.5px solid var(--mbb-border); }
+  /* Upset: dotted gender-colored border + very faint diagonal stripes layered under gender background */
+  .game-bar.wbb-bar.upset {
+    border: 2.5px dotted var(--wbb);
+    background-image: repeating-linear-gradient(
+      45deg,
+      transparent,
+      transparent 5px,
+      rgba(244,123,32,0.08) 5px,
+      rgba(244,123,32,0.08) 6px
+    );
+  }
+  .game-bar.mbb-bar.upset {
+    border: 2.5px dotted var(--mbb);
+    background-image: repeating-linear-gradient(
+      45deg,
+      transparent,
+      transparent 5px,
+      rgba(26,106,181,0.08) 5px,
+      rgba(26,106,181,0.08) 6px
+    );
+  }
+  @media (prefers-color-scheme: dark) {
+    .game-bar.wbb-bar.upset {
+      background-image: repeating-linear-gradient(
+        45deg,
+        transparent,
+        transparent 5px,
+        rgba(244,123,32,0.12) 5px,
+        rgba(244,123,32,0.12) 6px
+      );
+    }
+    .game-bar.mbb-bar.upset {
+      background-image: repeating-linear-gradient(
+        45deg,
+        transparent,
+        transparent 5px,
+        rgba(26,106,181,0.14) 5px,
+        rgba(26,106,181,0.14) 6px
+      );
+    }
+  }
+  .bar-pod { font-size: 8px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .bar-team { font-size: 9px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.4; color: var(--text); display: flex; align-items: center; gap: 3px; }
+  .bar-team.winner { color: var(--win); font-weight: 700; }
+  .bar-team.loser { color: var(--text3); }
+  .upset-label { font-size: 8px; font-weight: 800; color: var(--text2); letter-spacing: .06em; margin-top: 2px; text-transform: uppercase; }
+  .bar-score-line { font-size: 10px; font-weight: 700; color: var(--text); margin-top: 2px; white-space: nowrap; }
+  .bar-venue { font-size: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text3); margin-top: 1px; }
+  .bar-link { font-size: 7px; color: var(--text3); margin-top: auto; padding-top: 2px; text-align: right; opacity: 0.65; }
+  .game-bar:hover .bar-link, .game-bar:active .bar-link { opacity: 1; color: var(--wbb); }
+  .game-bar.mbb-bar:hover .bar-link, .game-bar.mbb-bar:active .bar-link { color: var(--mbb); }
+
+  .team-logo { width: 12px; height: 12px; object-fit: contain; flex-shrink: 0; }
+  .cinderella-label { font-size: 8px; font-weight: 700; color: #7c3aed; letter-spacing: .04em; margin-top: 1px; }
+
+  .now-line { position: absolute; left: 0; right: 0; height: 2px; background: var(--red); opacity: 0.8; z-index: 10; pointer-events: none; }
+  .now-label { position: absolute; left: 0; top: -13px; font-size: 8px; font-weight: 700; color: var(--red); white-space: nowrap; background: var(--bg); padding: 0 3px; border-radius: 3px; letter-spacing: .04em; }
+
+  /* region colors */
+  .r-FW1, .r-FW3 { color: #b03030; }
+  .r-SAC2, .r-SAC4 { color: #1a5fa0; }
+  .r-F4 { color: #5040b0; }
+  @media (prefers-color-scheme: dark) {
+    .r-FW1, .r-FW3 { color: #f09090; }
+    .r-SAC2, .r-SAC4 { color: #80b8f0; }
+    .r-F4 { color: #b0a0f8; }
+  }
+
+  /* ── CHANNEL DIVIDER LABELS ── */
+  .ch-divider { position: absolute; top: 0; bottom: 0; z-index: 5; pointer-events: none; }
+  .ch-divider-line { position: absolute; top: 0; bottom: 0; width: 2px; background: var(--border); }
+  .ch-section-label { writing-mode: vertical-rl; font-size: 8px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; opacity: 0.35; position: absolute; top: 8px; }
+
+  /* ── GUIDE MODAL ── */
+  .guide-modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 100; background: rgba(0,0,0,0.55); }
+  .guide-modal.open { display: flex; align-items: center; justify-content: center; }
+  .guide-content { background: var(--bg); border-radius: 12px; padding: 20px; max-width: 380px; width: 90%; max-height: 85vh; overflow-y: auto; box-shadow: 0 8px 32px rgba(0,0,0,0.3); }
+  .guide-content h2 { font-size: 15px; font-weight: 700; color: var(--wbb); margin-bottom: 12px; }
+  .guide-item { display: flex; gap: 10px; align-items: flex-start; margin-bottom: 12px; font-size: 12px; line-height: 1.4; }
+  .guide-icon { font-size: 16px; flex-shrink: 0; width: 24px; text-align: center; }
+  .guide-close { width: 100%; padding: 10px; margin-top: 8px; border-radius: 8px; border: none; background: var(--wbb); color: white; font-size: 13px; font-weight: 600; cursor: pointer; font-family: inherit; }
+
+  /* ── FUTURE NOTE ── */
+  .future-note { font-size: 12px; color: var(--text2); padding: 24px 0; text-align: center; font-style: italic; line-height: 1.8; }
+
+  /* ── MOBILE ── */
+  @media (max-width: 600px) {
+    body { padding: 8px; }
+    .day-btn { font-size: 9px; padding: 3px 7px; }
+    .bar-team { font-size: 7.5px; }
+    .bar-pod { font-size: 7px; }
+    .bar-score-line { font-size: 7px; }
+    .bar-venue { display: none; }
+    .team-logo { width: 10px; height: 10px; }
+    .ch-head { font-size: 9px; padding: 4px 2px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Rotate overlay for portrait mobile -->
+<div id="rotateOverlay">
+  <div class="rotate-icon">📱</div>
+  <div>
+    <strong>Rotate for the full picture</strong>
+    <p>This guide works best in landscape mode — 9 channels is a lot to show on a portrait screen!</p>
+  </div>
+  <button id="rotateSkip" onclick="document.getElementById('rotateOverlay').classList.remove('show');localStorage.setItem('skipRotate','1')">View anyway</button>
+</div>
+
+<!-- PERSISTENT HEADER -->
+<div style="position:sticky;top:0;z-index:40;background:var(--bg);padding-bottom:6px;border-bottom:1px solid var(--border);margin-bottom:8px;">
+  <div class="header-row">
+    <span style="font-size:20px">🏀</span>
+    <h1><span class="wbb-accent">W</span> + <span class="mbb-accent">M</span> MADNESS</h1>
+    <button onclick="document.getElementById('guideOverlay').classList.add('open')" style="background:none;border:2px solid var(--wbb);color:var(--wbb);border-radius:50%;width:22px;height:22px;font-size:12px;font-weight:800;cursor:pointer;padding:0;line-height:1;flex-shrink:0;margin-left:4px;">?</button>
+    <span style="margin-left:auto;font-size:10px;color:var(--text3)">Passion project by <a href="https://www.linkedin.com/in/carmendaley/" target="_blank" style="color:var(--text2);text-decoration:none;border-bottom:1px solid var(--border2);">Carmen Daley</a></span>
+  </div>
+  <p class="subtitle" id="tzSubtitle">All times Eastern · Tap a day to navigate</p>
+  <!-- FILTER TOGGLE -->
+  <div class="filter-strip">
+    <button class="filter-btn active-both" id="filterBoth" onclick="setFilter('both')">Both</button>
+    <button class="filter-btn" id="filterWBB" onclick="setFilter('wbb')">⛹🏿‍♀️ Women's only</button>
+    <button class="filter-btn" id="filterMBB" onclick="setFilter('mbb')">⛹🏽‍♂️ Men's only</button>
+  </div>
+</div>
+
+<!-- DAY TABS -->
+<div style="position:relative;display:flex;align-items:center;gap:4px">
+  <button class="nav-arrow left" id="navLeft" onclick="navStep(-1)" aria-label="Previous day">&#8249;</button>
+  <button class="nav-arrow right" id="navRight" onclick="navStep(1)" aria-label="Next day">&#8250;</button>
+  <div class="day-tabs" id="dayTabs" style="flex:1;min-width:0"></div>
+</div>
+
+<!-- STICKY DAY HEADER -->
+<div class="sticky-day" id="stickyDay">
+  <div class="sticky-day-row">
+    <a href="https://www.espn.com/womens-college-basketball/bracket" target="_blank" style="font-size:12px;font-family:'Bebas Neue',sans-serif;letter-spacing:0.04em;color:var(--wbb);margin-right:4px;white-space:nowrap;flex-shrink:0;text-decoration:none;">WBB Bracket ↗</a>
+    <a href="https://www.espn.com/mens-college-basketball/bracket" target="_blank" style="font-size:12px;font-family:'Bebas Neue',sans-serif;letter-spacing:0.04em;color:var(--mbb);margin-right:8px;white-space:nowrap;flex-shrink:0;text-decoration:none;">MBB Bracket ↗</a>
+    <div class="sticky-day-pill"><span class="sticky-day-label" id="stickyDayLabel"></span></div>
+  </div>
+  <div class="sticky-day-summary" id="daySummary"></div>
+</div>
+
+<!-- BANNERS -->
+<div class="overlap-note" id="overlapNote"></div>
+<div class="tbd-banner" id="tbdBanner"></div>
+<div class="cinderella-banner" id="cinderellaBanner"></div>
+<!-- GUIDE MODAL -->
+<div class="guide-modal" id="guideOverlay" onclick="if(event.target===this)this.classList.remove('open')">
+  <div class="guide-content">
+    <h2>🏀 How to use this page</h2>
+    <div class="guide-item"><span class="guide-icon">📱</span><div><strong>Landscape mode recommended on mobile</strong> — 9 channels is a lot. Rotate your phone for the best experience.</div></div>
+    <div class="guide-item"><span class="guide-icon">🎛️</span><div><strong>Filter toggle</strong> — switch between Both, Women's only, or Men's only to de-clutter the view.</div></div>
+    <div class="guide-item"><span class="guide-icon">📅</span><div><strong>Tabs</strong> — tap any date to see that day's games. Swipe left/right to move between days.</div></div>
+    <div class="guide-item"><span class="guide-icon">📺</span><div><strong>Columns</strong> — each column is a TV channel. Games are placed by start time so you can see exactly what overlaps.</div></div>
+    <div class="guide-item"><span class="guide-icon">↗</span><div><strong>Tap any game bar</strong> — opens the ESPN game page for live scores and stats.</div></div>
+    <div class="guide-item"><span class="guide-icon">🕐</span><div><strong>Timezones</strong> — times adjust to your local timezone automatically.</div></div>
+    <div class="guide-item"><span class="guide-icon">🔴</span><div><strong>Red line = NOW</strong> — shows current time on today's view.</div></div>
+    <div class="guide-item"><span class="guide-icon">🟢</span><div><strong>Green = winner</strong> — completed games show the winning team in green with the final score.</div></div>
+    <div class="guide-item"><span class="guide-icon">✨</span><div><strong>Cinderella</strong> — sparkle wand next to teams that reached the Sweet 16 as a #10 seed or lower.</div></div>
+    <div class="guide-item"><span class="guide-icon">🫧</span><div><strong>Bubble team</strong> — blue bubbles next to teams that had to win a First Four game just to make the tournament.</div></div>
+    <div style="border-top:1px solid var(--border);margin:10px 0 12px"></div>
+    <div style="font-size:11px;font-weight:700;color:var(--text);margin-bottom:8px;">Game bar colors</div>
+    <div class="guide-item"><span class="guide-icon">🟠</span><div><strong>Orange bars</strong> — Women's tournament (WBB) on ESPN, ABC, ESPN2, ESPNU, ESPNews.</div></div>
+    <div class="guide-item"><span class="guide-icon">🔵</span><div><strong>Blue bars</strong> — Men's tournament (MBB) on CBS, TBS, TNT, truTV.</div></div>
+    <div style="border-top:1px solid var(--border);margin:10px 0 12px"></div>
+    <div style="font-size:11px;font-weight:700;color:var(--text);margin-bottom:8px;">Date tab borders</div>
+    <div class="guide-item"><span style="display:inline-block;width:32px;height:18px;border-radius:10px;border:3px solid var(--wbb);flex-shrink:0"></span><div>Orange — Women's games only that day.</div></div>
+    <div class="guide-item"><span style="display:inline-block;width:32px;height:18px;border-radius:10px;border:3px solid var(--mbb);flex-shrink:0"></span><div>Blue — Men's games only that day.</div></div>
+    <div class="guide-item"><span style="display:inline-block;width:32px;height:18px;border-radius:10px;border:3px solid transparent;background-image:linear-gradient(var(--bg),var(--bg)),linear-gradient(to right,var(--wbb) 50%,var(--mbb) 50%);background-origin:border-box;background-clip:padding-box,border-box;flex-shrink:0"></span><div>Split orange/blue — both tournaments playing that day.</div></div>
+    <div class="guide-item"><span style="display:inline-block;width:32px;height:18px;border-radius:10px;border:3px solid var(--mbb);box-shadow:0 0 0 2px var(--bg),0 0 0 4px var(--text);flex-shrink:0"></span><div><strong>Bold outer ring</strong> — today's date.</div></div>
+    <button class="guide-close" onclick="document.getElementById('guideOverlay').classList.remove('open')">Got it!</button>
+  </div>
+</div>
+
+<!-- GRID CONTAINER -->
+<div id="gridContainer"></div>
+
+<script>
+// ─────────────────────────────────────────────
+// CONSTANTS
+// ─────────────────────────────────────────────
+const DURATION = 120;
+const PX_PER_MIN = 1.0;
+const TIME_COL_W = 44;
+
+// All channels — WBB first, then MBB
+const WBB_NETS = ["ESPN","ABC","ESPN2","ESPNU","ESPNews"];
+const MBB_NETS = ["CBS","TBS","TNT","truTV"];
+const ALL_NETS  = [...WBB_NETS, ...MBB_NETS];
+
+// Current filter
+let activeFilter = 'both'; // 'both' | 'wbb' | 'mbb'
+
+function setFilter(f) {
+  activeFilter = f;
+  document.getElementById('filterBoth').className = 'filter-btn' + (f==='both'?' active-both':'');
+  document.getElementById('filterWBB').className  = 'filter-btn' + (f==='wbb'?' active-wbb':'');
+  document.getElementById('filterMBB').className  = 'filter-btn' + (f==='mbb'?' active-mbb':'');
+  render();
+}
+
+// ─────────────────────────────────────────────
+// WOMEN'S GAME DATA  (gender:"W")
+// ─────────────────────────────────────────────
+const G_WBB = [
+  {day:"Wed Mar 18",time:"7:00 PM",net:"ESPN2",away:"(11) Richmond Spiders",home:"(11) Nebraska Cornhuskers",awayShort:"(11) Richmond",homeShort:"(11) Nebraska",awayAbbr:"(11) RICH",homeAbbr:"(11) NEB",gameId:"401859469",reg:"SAC2",venue:"Cameron Indoor Stadium, Durham, NC",awayLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/257.png",homeLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/158.png",ascore:56,hscore:75,status:"final"},
+  {day:"Wed Mar 18",time:"9:00 PM",net:"ESPN2",away:"(16) Stephen F. Austin Ladyjacks",home:"(16) Missouri State Lady Bears",awayShort:"(16) SF Austin",homeShort:"(16) Missouri St",awayAbbr:"(16) SFA",homeAbbr:"(16) MOST",gameId:"401859470",reg:"FW3",venue:"Moody Center, Austin, TX",awayLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/2617.png",homeLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/2623.png",ascore:75,hscore:85,status:"final"},
+  {day:"Thu Mar 19",time:"9:00 PM",net:"ESPN2",away:"(10) Arizona State Sun Devils",home:"(10) Virginia Cavaliers",awayShort:"(10) Arizona St",homeShort:"(10) Virginia",awayAbbr:"(10) ASU",homeAbbr:"(10) UVA",gameId:"401859472",reg:"SAC4",venue:"Carver-Hawkeye Arena, Iowa City, IA",awayLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/9.png",homeLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/258.png",ascore:55,hscore:57,status:"final"},
+  {day:"Thu Mar 19",time:"7:00 PM",net:"ESPN2",away:"(16) Samford Bulldogs",home:"(16) Southern Jaguars",awayShort:"(16) Samford",homeShort:"(16) Southern",awayAbbr:"(16) SAM",homeAbbr:"(16) SOU",gameId:"401859471",reg:"SAC4",venue:"Colonial Life Arena, Columbia, SC",awayLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/2535.png",homeLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/2582.png",ascore:53,hscore:65,status:"final"},
+  {day:"Fri Mar 20",time:"4:07 PM",net:"ESPN",away:"(16) Missouri State Lady Bears",home:"(1) Texas Longhorns",awayShort:"(16) Missouri St",homeShort:"(1) Texas",awayAbbr:"(16) MOST",homeAbbr:"(1) TEX",gameId:"401856475",reg:"FW3",venue:"Moody Center, Austin, TX",awayLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/2623.png",homeLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/251.png",ascore:45,hscore:87,status:"final"},
+  {day:"Fri Mar 20",time:"5:30 PM",net:"ESPN2",away:"(15) Holy Cross Crusaders",home:"(2) Michigan Wolverines",awayShort:"(15) Holy Cross",homeShort:"(2) Michigan",awayAbbr:"(15) HC",homeAbbr:"(2) MICH",gameId:"401856477",reg:"FW3",venue:"Crisler Center, Ann Arbor, MI",awayLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/107.png",homeLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/130.png",ascore:48,hscore:83,status:"final"},
+  {day:"Fri Mar 20",time:"6:07 PM",net:"ESPN",away:"(15) Jacksonville Dolphins",home:"(2) LSU Tigers",awayShort:"(15) Jacksonville",homeShort:"(2) LSU",awayAbbr:"(15) JAX",homeAbbr:"(2) LSU",gameId:"401856474",reg:"SAC2",venue:"Pete Maravich Assembly Center, Baton Rouge, LA",awayLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/294.png",homeLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/99.png",ascore:58,hscore:116,status:"final"},
+  {day:"Fri Mar 20",time:"11:30 AM",net:"ESPN2",away:"(14) Charleston Cougars",home:"(3) Duke Blue Devils",awayShort:"(14) Charleston",homeShort:"(3) Duke",awayAbbr:"(14) COFC",homeAbbr:"(3) DUKE",gameId:"401856471",reg:"SAC2",venue:"Cameron Indoor Stadium, Durham, NC",awayLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/232.png",homeLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/150.png",ascore:64,hscore:81,status:"final"},
+  {day:"Fri Mar 20",time:"12:00 PM",net:"ESPN",away:"(14) UC San Diego Tritons",home:"(3) TCU Horned Frogs",awayShort:"(14) UC San Diego",homeShort:"(3) TCU",awayAbbr:"(14) UCSD",homeAbbr:"(3) TCU",gameId:"401856501",reg:"SAC4",venue:"Schollmaier Arena, Fort Worth, TX",awayLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/28.png",homeLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/2628.png",ascore:40,hscore:86,status:"final"},
+  {day:"Fri Mar 20",time:"5:39 PM",net:"ESPNEWS",away:"(13) Western Illinois Leathernecks",home:"(4) North Carolina Tar Heels",awayShort:"(13) W Illinois",homeShort:"(4) North Carolina",awayAbbr:"(13) WIU",homeAbbr:"(4) UNC",gameId:"401856467",reg:"FW1",venue:"Carmichael Arena, Chapel Hill, NC",awayLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/2710.png",homeLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/153.png",ascore:51,hscore:82,status:"final"},
+  {day:"Fri Mar 20",time:"6:05 PM",net:"ESPNU",away:"(13) Green Bay Phoenix",home:"(4) Minnesota Golden Gophers",awayShort:"(13) Green Bay",homeShort:"(4) Minnesota",awayAbbr:"(13) GB",homeAbbr:"(4) MINN",gameId:"401856469",reg:"SAC2",venue:"Williams Arena, Minneapolis, MN",awayLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/2739.png",homeLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/135.png",ascore:58,hscore:75,status:"final"},
+  {day:"Fri Mar 20",time:"10:00 PM",net:"ESPN",away:"(13) Idaho Vandals",home:"(4) Oklahoma Sooners",awayShort:"(13) Idaho",homeShort:"(4) Oklahoma",awayAbbr:"(13) IDHO",homeAbbr:"(4) OU",gameId:"401856499",reg:"SAC4",venue:"Lloyd Noble Center, Norman, OK",awayLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/70.png",homeLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/201.png",ascore:59,hscore:89,status:"final"},
+  {day:"Fri Mar 20",time:"3:07 PM",net:"ESPNU",away:"(12) Murray State Racers",home:"(5) Maryland Terrapins",awayShort:"(12) Murray St",homeShort:"(5) Maryland",awayAbbr:"(12) MUR",homeAbbr:"(5) MD",gameId:"401856468",reg:"FW1",venue:"Carmichael Arena, Chapel Hill, NC",awayLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/93.png",homeLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/120.png",ascore:67,hscore:99,status:"final"},
+  {day:"Fri Mar 20",time:"3:30 PM",net:"ESPN2",away:"(12) Gonzaga Bulldogs",home:"(5) Ole Miss Rebels",awayShort:"(12) Gonzaga",homeShort:"(5) Ole Miss",awayAbbr:"(12) GONZ",homeAbbr:"(5) MISS",gameId:"401856470",reg:"SAC2",venue:"Williams Arena, Minneapolis, MN",awayLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/2250.png",homeLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/145.png",ascore:66,hscore:81,status:"final"},
+  {day:"Fri Mar 20",time:"7:30 PM",net:"ESPNEWS",away:"(12) Colorado State Rams",home:"(5) Michigan State Spartans",awayShort:"(12) Colorado St",homeShort:"(5) Michigan St",awayAbbr:"(12) CSU",homeAbbr:"(5) MSU",gameId:"401856500",reg:"SAC4",venue:"Lloyd Noble Center, Norman, OK",awayLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/36.png",homeLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/127.png",ascore:62,hscore:65,status:"final"},
+  {day:"Fri Mar 20",time:"2:00 PM",net:"ESPN",away:"(11) Nebraska Cornhuskers",home:"(6) Baylor Bears",awayShort:"(11) Nebraska",homeShort:"(6) Baylor",awayAbbr:"(11) NEB",homeAbbr:"(6) BAY",gameId:"401856472",reg:"SAC2",venue:"Cameron Indoor Stadium, Durham, NC",awayLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/158.png",homeLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/239.png",ascore:62,hscore:67,status:"final"},
+  {day:"Fri Mar 20",time:"2:30 PM",net:"ESPNEWS",away:"(11) South Dakota State Jackrabbits",home:"(6) Washington Huskies",awayShort:"(11) S Dakota St",homeShort:"(6) Washington",awayAbbr:"(11) SDST",homeAbbr:"(6) WASH",gameId:"401856502",reg:"SAC4",venue:"Schollmaier Arena, Fort Worth, TX",awayLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/2571.png",homeLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/264.png",ascore:54,hscore:72,status:"final"},
+  {day:"Fri Mar 20",time:"8:07 PM",net:"ESPN",away:"(10) Tennessee Lady Volunteers",home:"(7) NC State Wolfpack",awayShort:"(10) Tennessee",homeShort:"(7) NC State",awayAbbr:"(10) TENN",homeAbbr:"(7) NCSU",gameId:"401856498",reg:"FW3",venue:"Crisler Center, Ann Arbor, MI",awayLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/2633_ncw.png",homeLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/152.png",ascore:61,hscore:76,status:"final"},
+  {day:"Fri Mar 20",time:"8:30 PM",net:"ESPNU",away:"(10) Villanova Wildcats",home:"(7) Texas Tech Lady Raiders",awayShort:"(10) Villanova",homeShort:"(7) Texas Tech",awayAbbr:"(10) VILL",homeAbbr:"(7) TTU",gameId:"401856473",reg:"SAC2",venue:"Pete Maravich Assembly Center, Baton Rouge, LA",awayLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/222.png",homeLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/2641.png",ascore:52,hscore:57,status:"final"},
+  {day:"Fri Mar 20",time:"1:30 PM",net:"ESPN2",away:"(9) Virginia Tech Hokies",home:"(8) Oregon Ducks",awayShort:"(9) Virginia Tech",homeShort:"(8) Oregon",awayAbbr:"(9) VT",homeAbbr:"(8) ORE",gameId:"401856476",reg:"FW3",venue:"Moody Center, Austin, TX",awayLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/259.png",homeLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/2483.png",ascore:60,hscore:70,status:"final"},
+  {day:"Sat Mar 21",time:"9:30 PM",net:"ESPN2",away:"(10) Colorado Buffaloes",home:"(7) Illinois Fighting Illini",awayShort:"(10) Colorado",homeShort:"(7) Illinois",awayAbbr:"(10) COLO",homeAbbr:"(7) ILL",gameId:"401856506",reg:"FW1",venue:"Memorial Gymnasium (TN), Nashville, TN",awayLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/38.png",homeLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/356.png",status:"live"},
+  {day:"Sat Mar 21",time:"1:00 PM",net:"ABC",away:"(16) Southern Jaguars",home:"(1) South Carolina Gamecocks",awayShort:"(16) Southern",homeShort:"(1) South Carolina",awayAbbr:"(16) SOU",homeAbbr:"(1) SC",gameId:"401856512",reg:"SAC4",venue:"Colonial Life Arena, Columbia, SC",awayLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/2582.png",homeLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/2579.png",ascore:34,hscore:103,status:"final"},
+  {day:"Sat Mar 21",time:"3:00 PM",net:"ABC",away:"(16) UTSA Roadrunners",home:"(1) UConn Huskies",awayShort:"(16) UTSA",homeShort:"(1) UConn",awayAbbr:"(16) UTSA",homeAbbr:"(1) CONN",gameId:"401856503",reg:"FW1",venue:"Gampel Pavilion, Storrs, CT",awayLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/2636.png",homeLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/41.png",ascore:52,hscore:90,status:"final"},
+  {day:"Sat Mar 21",time:"4:27 PM",net:"ESPN",away:"(15) Fairleigh Dickinson Knights",home:"(2) Iowa Hawkeyes",awayShort:"(15) FDU",homeShort:"(2) Iowa",awayAbbr:"(15) FDU",homeAbbr:"(2) IOWA",gameId:"401856509",reg:"SAC4",venue:"Carver-Hawkeye Arena, Iowa City, IA",awayLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/161.png",homeLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/2294.png",ascore:48,hscore:58,status:"final"},
+  {day:"Sat Mar 21",time:"7:00 PM",net:"ESPNEWS",away:"(15) High Point Panthers",home:"(2) Vanderbilt Commodores",awayShort:"(15) High Point",homeShort:"(2) Vanderbilt",awayAbbr:"(15) HPU",homeAbbr:"(2) VAN",gameId:"401856505",reg:"FW1",venue:"Memorial Gymnasium (TN), Nashville, TN",awayLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/2272.png",homeLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/238.png",ascore:61,hscore:102,status:"final"},
+  {day:"Sat Mar 21",time:"11:30 AM",net:"ESPN2",away:"(14) Howard Bison",home:"(3) Ohio State Buckeyes",awayShort:"(14) Howard",homeShort:"(3) Ohio State",awayAbbr:"(14) HOW",homeAbbr:"(3) OSU",gameId:"401856538",reg:"FW1",venue:"Value City Arena, Columbus, OH",awayLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/47.png",homeLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/194.png",ascore:54,hscore:75,status:"final"},
+  {day:"Sat Mar 21",time:"12:00 PM",net:"ESPN",away:"(14) Vermont Catamounts",home:"(3) Louisville Cardinals",awayShort:"(14) Vermont",homeShort:"(3) Louisville",awayAbbr:"(14) UVM",homeAbbr:"(3) LOU",gameId:"401856514",reg:"FW3",venue:"KFC Yum! Center, Louisville, KY",awayLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/261.png",homeLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/97.png",ascore:52,hscore:72,status:"final"},
+  {day:"Sat Mar 21",time:"5:00 PM",net:"ESPNU",away:"(13) Miami (OH) RedHawks",home:"(4) West Virginia Mountaineers",awayShort:"(13) Miami OH",homeShort:"(4) West Virginia",awayAbbr:"(13) M-OH",homeAbbr:"(4) WVU",gameId:"401856507",reg:"FW3",venue:"WVU Coliseum, Morgantown, WV",awayLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/193.png",homeLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/277.png",ascore:54,hscore:82,status:"final"},
+  {day:"Sat Mar 21",time:"2:30 PM",net:"ESPNU",away:"(12) James Madison Dukes",home:"(5) Kentucky Wildcats",awayShort:"(12) James Madison",homeShort:"(5) Kentucky",awayAbbr:"(12) JMU",homeAbbr:"(5) UK",gameId:"401856508",reg:"FW3",venue:"WVU Coliseum, Morgantown, WV",awayLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/256.png",homeLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/96.png",ascore:56,hscore:71,status:"final"},
+  {day:"Sat Mar 21",time:"2:00 PM",net:"ESPN",away:"(11) Fairfield Stags",home:"(6) Notre Dame Fighting Irish",awayShort:"(11) Fairfield",homeShort:"(6) Notre Dame",awayAbbr:"(11) FAIR",homeAbbr:"(6) ND",gameId:"401856517",reg:"FW1",venue:"Value City Arena, Columbus, OH",awayLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/2217.png",homeLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/87.png",ascore:60,hscore:79,status:"final"},
+  {day:"Sat Mar 21",time:"2:30 PM",net:"ESPNEWS",away:"(11) Rhode Island Rams",home:"(6) Alabama Crimson Tide",awayShort:"(11) Rhode Island",homeShort:"(6) Alabama",awayAbbr:"(11) URI",homeAbbr:"(6) ALA",gameId:"401856513",reg:"FW3",venue:"KFC Yum! Center, Louisville, KY",awayLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/227.png",homeLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/333.png",ascore:55,hscore:68,status:"final"},
+  {day:"Sat Mar 21",time:"1:30 PM",net:"ESPN2",away:"(10) Virginia Cavaliers",home:"(7) Georgia Lady Bulldogs",awayShort:"(10) Virginia",homeShort:"(7) Georgia",awayAbbr:"(10) UVA",homeAbbr:"(7) UGA",gameId:"401856510",reg:"SAC4",venue:"Carver-Hawkeye Arena, Iowa City, IA",awayLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/258.png",homeLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/61.png",ascore:82,hscore:73,status:"final"},
+  {day:"Sat Mar 21",time:"3:30 PM",net:"ESPN2",away:"(9) USC Trojans",home:"(8) Clemson Tigers",awayShort:"(9) USC",homeShort:"(8) Clemson",awayAbbr:"(9) USC",homeAbbr:"(8) CLEM",gameId:"401856511",reg:"SAC4",venue:"Colonial Life Arena, Columbia, SC",awayLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/30.png",homeLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/228.png",ascore:71,hscore:67,status:"final"},
+  {day:"Sat Mar 21",time:"5:30 PM",net:"ESPN2",away:"(9) Syracuse Orange",home:"(8) Iowa State Cyclones",awayShort:"(9) Syracuse",homeShort:"(8) Iowa State",awayAbbr:"(9) SYR",homeAbbr:"(8) ISU",gameId:"401856504",reg:"FW1",venue:"Gampel Pavilion, Storrs, CT",awayLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/183.png",homeLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/66.png",ascore:72,hscore:63,status:"final"},
+  {day:"Sat Mar 21",time:"7:30 PM",net:"ESPN2",away:"(9) Princeton Tigers",home:"(8) Oklahoma State Cowgirls",awayShort:"(9) Princeton",homeShort:"(8) Oklahoma St",awayAbbr:"(9) PRIN",homeAbbr:"(8) OKST",gameId:"401856515",reg:"SAC2",venue:"Pauley Pavilion, Los Angeles, CA",awayLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/163.png",homeLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/197.png",ascore:68,hscore:82,status:"final"},
+  {day:"Sat Mar 21",time:"10:00 PM",net:"ESPN",away:"(16) California Baptist Lancers",home:"(1) UCLA Bruins",awayShort:"(16) CA Baptist",homeShort:"(1) UCLA",awayAbbr:"(16) CBU",homeAbbr:"(1) UCLA",gameId:"401856516",reg:"SAC2",venue:"Pauley Pavilion, Los Angeles, CA",awayLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/2856.png",homeLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/26.png"},
+  {day:"Sun Mar 22",time:"12:00 PM",net:"ESPN",away:"(5) Maryland Terrapins",home:"(4) North Carolina Tar Heels",awayShort:"(5) Maryland",homeShort:"(4) North Carolina",awayAbbr:"(5) MD",homeAbbr:"(4) UNC",gameId:"401856543",reg:"FW1",venue:"Carmichael Arena, Chapel Hill, NC",awayLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/120.png",homeLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/153.png"},
+  {day:"Sun Mar 22",time:"1:00 PM",net:"ABC",away:"(7) NC State Wolfpack",home:"(2) Michigan Wolverines",awayShort:"(7) NC State",homeShort:"(2) Michigan",awayAbbr:"(7) NCSU",homeAbbr:"(2) MICH",gameId:"401856542",reg:"FW3",venue:"Crisler Center, Ann Arbor, MI",awayLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/152.png",homeLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/130.png"},
+  {day:"Sun Mar 22",time:"2:00 PM",net:"ESPN",away:"(5) Ole Miss Rebels",home:"(4) Minnesota Golden Gophers",awayShort:"(5) Ole Miss",homeShort:"(4) Minnesota",awayAbbr:"(5) MISS",homeAbbr:"(4) MINN",gameId:"401856544",reg:"SAC2",venue:"Williams Arena, Minneapolis, MN",awayLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/145.png",homeLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/135.png"},
+  {day:"Sun Mar 22",time:"3:00 PM",net:"ABC",away:"(7) Texas Tech Lady Raiders",home:"(2) LSU Tigers",awayShort:"(7) Texas Tech",homeShort:"(2) LSU",awayAbbr:"(7) TTU",homeAbbr:"(2) LSU",gameId:"401856545",reg:"SAC2",venue:"Pete Maravich Assembly Center, Baton Rouge, LA",awayLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/2641.png",homeLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/99.png"},
+  {day:"Sun Mar 22",time:"4:00 PM",net:"ESPN",away:"(6) Baylor Bears",home:"(3) Duke Blue Devils",awayShort:"(6) Baylor",homeShort:"(3) Duke",awayAbbr:"(6) BAY",homeAbbr:"(3) DUKE",gameId:"401856539",reg:"SAC2",venue:"Cameron Indoor Stadium, Durham, NC",awayLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/239.png",homeLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/150.png"},
+  {day:"Sun Mar 22",time:"6:00 PM",net:"ESPN",away:"(8) Oregon Ducks",home:"(1) Texas Longhorns",awayShort:"(8) Oregon",homeShort:"(1) Texas",awayAbbr:"(8) ORE",homeAbbr:"(1) TEX",gameId:"401856541",reg:"FW3",venue:"Moody Center, Austin, TX",awayLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/2483.png",homeLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/251.png"},
+  {day:"Sun Mar 22",time:"8:00 PM",net:"ESPN",away:"(5) Michigan State Spartans",home:"(4) Oklahoma Sooners",awayShort:"(5) Michigan St",homeShort:"(4) Oklahoma",awayAbbr:"(5) MSU",homeAbbr:"(4) OU",gameId:"401856546",reg:"SAC4",venue:"Lloyd Noble Center, Norman, OK",awayLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/127.png",homeLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/201.png"},
+  {day:"Sun Mar 22",time:"10:00 PM",net:"ESPN",away:"(6) Washington Huskies",home:"(3) TCU Horned Frogs",awayShort:"(6) Washington",homeShort:"(3) TCU",awayAbbr:"(6) WASH",homeAbbr:"(3) TCU",gameId:"401856540",reg:"SAC4",venue:"Schollmaier Arena, Fort Worth, TX",awayLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/264.png",homeLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/2628.png"},
+  {day:"Mon Mar 23",time:"6:00 PM",net:"ESPN",away:"(9) Syracuse Orange",home:"(1) UConn Huskies",awayShort:"(9) Syracuse",homeShort:"(1) UConn",awayAbbr:"(9) SYR",homeAbbr:"(1) CONN",gameId:"401856551",reg:"FW1",venue:"Gampel Pavilion, Storrs, CT",awayLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/183.png",homeLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/41.png"},
+  {day:"Mon Mar 23",time:"12:00 AM",net:"",away:"(9) USC Trojans",home:"(1) South Carolina Gamecocks",awayShort:"(9) USC",homeShort:"(1) South Carolina",awayAbbr:"(9) USC",homeAbbr:"(1) SC",gameId:"401856550",reg:"SAC4",venue:"Colonial Life Arena, Columbia, SC",awayLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/30.png",homeLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/2579.png"},
+  {day:"Mon Mar 23",time:"7:00 PM",net:"ESPN2",away:"TBD",home:"(2) Vanderbilt Commodores",awayShort:"TBD",homeShort:"(2) Vanderbilt",awayAbbr:"TBD",homeAbbr:"(2) VAN",gameId:"401856554",reg:"FW1",venue:"Memorial Gymnasium (TN), Nashville, TN",awayLogo:"",homeLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/238.png"},
+  {day:"Mon Mar 23",time:"2:00 PM",net:"ESPN",away:"(10) Virginia Cavaliers",home:"(2) Iowa Hawkeyes",awayShort:"(10) Virginia",homeShort:"(2) Iowa",awayAbbr:"(10) UVA",homeAbbr:"(2) IOWA",gameId:"401856552",reg:"SAC4",venue:"Carver-Hawkeye Arena, Iowa City, IA",awayLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/258.png",homeLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/2294.png"},
+  {day:"Mon Mar 23",time:"12:00 PM",net:"ESPN",away:"(6) Alabama Crimson Tide",home:"(3) Louisville Cardinals",awayShort:"(6) Alabama",homeShort:"(3) Louisville",awayAbbr:"(6) ALA",homeAbbr:"(3) LOU",gameId:"401856549",reg:"FW3",venue:"KFC Yum! Center, Louisville, KY",awayLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/333.png",homeLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/97.png"},
+  {day:"Mon Mar 23",time:"4:00 PM",net:"",away:"(6) Notre Dame Fighting Irish",home:"(3) Ohio State Buckeyes",awayShort:"(6) Notre Dame",homeShort:"(3) Ohio State",awayAbbr:"(6) ND",homeAbbr:"(3) OSU",gameId:"401856547",reg:"FW1",venue:"Value City Arena, Columbus, OH",awayLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/87.png",homeLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/194.png"},
+  {day:"Mon Mar 23",time:"12:00 AM",net:"ESPN2",away:"(5) Kentucky Wildcats",home:"(4) West Virginia Mountaineers",awayShort:"(5) Kentucky",homeShort:"(4) West Virginia",awayAbbr:"(5) UK",homeAbbr:"(4) WVU",gameId:"401856553",reg:"FW3",venue:"WVU Coliseum, Morgantown, WV",awayLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/96.png",homeLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/277.png"},
+  {day:"Mon Mar 23",time:"12:00 AM",net:"",away:"TBD",home:"TBD",awayShort:"TBD",homeShort:"TBD",awayAbbr:"TBD",homeAbbr:"TBD",gameId:"401856555",reg:"F4",venue:"TBD",awayLogo:"",homeLogo:""},
+  {day:"Fri Mar 27",time:"12:00 AM",net:"",away:"TBD",home:"TBD",awayShort:"TBD",homeShort:"TBD",awayAbbr:"TBD",homeAbbr:"TBD",gameId:"401856579",reg:"SAC2",venue:"Golden 1 Center, Sacramento, CA",awayLogo:"",homeLogo:""},
+  {day:"Fri Mar 27",time:"12:00 AM",net:"",away:"TBD",home:"TBD",awayShort:"TBD",homeShort:"TBD",awayAbbr:"TBD",homeAbbr:"TBD",gameId:"401856578",reg:"SAC2",venue:"Golden 1 Center, Sacramento, CA",awayLogo:"",homeLogo:""},
+  {day:"Fri Mar 27",time:"12:00 AM",net:"",away:"TBD",home:"TBD",awayShort:"TBD",homeShort:"TBD",awayAbbr:"TBD",homeAbbr:"TBD",gameId:"401856557",reg:"FW1",venue:"Dickies Arena, Fort Worth, TX",awayLogo:"",homeLogo:""},
+  {day:"Fri Mar 27",time:"12:00 AM",net:"",away:"TBD",home:"TBD",awayShort:"TBD",homeShort:"TBD",awayAbbr:"TBD",homeAbbr:"TBD",gameId:"401856556",reg:"FW1",venue:"Dickies Arena, Fort Worth, TX",awayLogo:"",homeLogo:""},
+  {day:"Sat Mar 28",time:"12:00 AM",net:"",away:"TBD",home:"TBD",awayShort:"TBD",homeShort:"TBD",awayAbbr:"TBD",homeAbbr:"TBD",gameId:"401856583",reg:"SAC4",venue:"Golden 1 Center, Sacramento, CA",awayLogo:"",homeLogo:""},
+  {day:"Sat Mar 28",time:"12:00 AM",net:"",away:"TBD",home:"TBD",awayShort:"TBD",homeShort:"TBD",awayAbbr:"TBD",homeAbbr:"TBD",gameId:"401856582",reg:"SAC4",venue:"Golden 1 Center, Sacramento, CA",awayLogo:"",homeLogo:""},
+  {day:"Sat Mar 28",time:"12:00 AM",net:"",away:"TBD",home:"TBD",awayShort:"TBD",homeShort:"TBD",awayAbbr:"TBD",homeAbbr:"TBD",gameId:"401856581",reg:"FW3",venue:"Dickies Arena, Fort Worth, TX",awayLogo:"",homeLogo:""},
+  {day:"Sat Mar 28",time:"12:00 AM",net:"",away:"TBD",home:"TBD",awayShort:"TBD",homeShort:"TBD",awayAbbr:"TBD",homeAbbr:"TBD",gameId:"401856580",reg:"FW3",venue:"Dickies Arena, Fort Worth, TX",awayLogo:"",homeLogo:""},
+  {day:"Sun Mar 29",time:"1:00 PM",net:"ABC",away:"TBD",home:"TBD",awayShort:"TBD",homeShort:"TBD",awayAbbr:"TBD",homeAbbr:"TBD",gameId:"401856584",reg:"FW1",venue:"Dickies Arena, Fort Worth, TX",awayLogo:"",homeLogo:""},
+  {day:"Sun Mar 29",time:"3:00 PM",net:"ABC",away:"TBD",home:"TBD",awayShort:"TBD",homeShort:"TBD",awayAbbr:"TBD",homeAbbr:"TBD",gameId:"401856585",reg:"SAC2",venue:"Golden 1 Center, Sacramento, CA",awayLogo:"",homeLogo:""},
+  {day:"Mon Mar 30",time:"7:00 PM",net:"ESPN",away:"TBD",home:"TBD",awayShort:"TBD",homeShort:"TBD",awayAbbr:"TBD",homeAbbr:"TBD",gameId:"401856586",reg:"FW3",venue:"Dickies Arena, Fort Worth, TX",awayLogo:"",homeLogo:""},
+  {day:"Mon Mar 30",time:"9:00 PM",net:"ESPN",away:"TBD",home:"TBD",awayShort:"TBD",homeShort:"TBD",awayAbbr:"TBD",homeAbbr:"TBD",gameId:"401856587",reg:"SAC4",venue:"Golden 1 Center, Sacramento, CA",awayLogo:"",homeLogo:""},
+  {day:"Fri Apr 3",time:"12:00 AM",net:"ESPN",away:"TBD",home:"TBD",awayShort:"TBD",homeShort:"TBD",awayAbbr:"TBD",homeAbbr:"TBD",gameId:"401856589",reg:"F4",venue:"Mortgage Matchup Center, Phoenix, AZ",awayLogo:"",homeLogo:""},
+  {day:"Fri Apr 3",time:"12:00 AM",net:"ESPN",away:"TBD",home:"TBD",awayShort:"TBD",homeShort:"TBD",awayAbbr:"TBD",homeAbbr:"TBD",gameId:"401856588",reg:"F4",venue:"Mortgage Matchup Center, Phoenix, AZ",awayLogo:"",homeLogo:""},
+  {day:"Sun Apr 5",time:"12:00 AM",net:"",away:"TBD",home:"TBD",awayShort:"TBD",homeShort:"TBD",awayAbbr:"TBD",homeAbbr:"TBD",gameId:"401856590",reg:"F4",venue:"Mortgage Matchup Center, Phoenix, AZ",awayLogo:"",homeLogo:""},
+].map(g => ({...g, gender:"W"}));
+
+// ─────────────────────────────────────────────
+// MEN'S GAME DATA  (gender:"M")
+// ─────────────────────────────────────────────
+const G_MBB = [
+  {day:"Tue Mar 17",time:"9:29 PM",net:"truTV",away:"(11) Texas Longhorns",home:"(11) NC State Wolfpack",awayShort:"(11) Texas",homeShort:"(11) NC State",awayAbbr:"(11) TEX",homeAbbr:"(11) NCSU",gameId:"401856434",reg:"W",venue:"UD Arena, Dayton, OH",awayLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/251.png",homeLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/152.png",ascore:68,hscore:66,status:"final"},
+  {day:"Tue Mar 17",time:"6:40 PM",net:"truTV",away:"(16) UMBC Retrievers",home:"(16) Howard Bison",awayShort:"(16) UMBC",homeShort:"(16) Howard",awayAbbr:"(16) UMBC",homeAbbr:"(16) HOW",gameId:"401856435",reg:"W",venue:"UD Arena, Dayton, OH",awayLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/2378.png",homeLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/47.png",ascore:83,hscore:86,status:"final"},
+  {day:"Wed Mar 18",time:"9:15 PM",net:"truTV",away:"(11) Miami (OH) RedHawks",home:"(11) SMU Mustangs",awayShort:"(11) Miami OH",homeShort:"(11) SMU",awayAbbr:"(11) M-OH",homeAbbr:"(11) SMU",gameId:"401856436",reg:"W",venue:"UD Arena, Dayton, OH",awayLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/193.png",homeLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/2567.png",ascore:89,hscore:79,status:"final"},
+  {day:"Wed Mar 18",time:"6:40 PM",net:"truTV",away:"(16) Prairie View A&M Panthers",home:"(16) Lehigh Mountain Hawks",awayShort:"(16) Prairie View",homeShort:"(16) Lehigh",awayAbbr:"(16) PV",homeAbbr:"(16) LEH",gameId:"401856437",reg:"S",venue:"UD Arena, Dayton, OH",awayLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/2504.png",homeLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/2329.png",ascore:67,hscore:55,status:"final"},
+  {day:"Thu Mar 19",time:"3:00 PM",net:"CBS",away:"(16) Siena Saints",home:"(1) Duke Blue Devils",awayShort:"(16) Siena",homeShort:"(1) Duke",awayAbbr:"(16) SIE",homeAbbr:"(1) DUKE",gameId:"401856478",reg:"E",venue:"Bon Secours Wellness Arena, Greenville, SC",awayLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/2561.png",homeLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/150.png",ascore:65,hscore:71,status:"final"},
+  {day:"Thu Mar 19",time:"7:30 PM",net:"CBS",away:"(16) Howard Bison",home:"(1) Michigan Wolverines",awayShort:"(16) Howard",homeShort:"(1) Michigan",awayAbbr:"(16) HOW",homeAbbr:"(1) MICH",gameId:"401856486",reg:"W",venue:"KeyBank Center, Buffalo, NY",awayLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/47.png",homeLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/130.png",ascore:80,hscore:101,status:"final"},
+  {day:"Thu Mar 19",time:"10:15 PM",net:"truTV",away:"(15) Idaho Vandals",home:"(2) Houston Cougars",awayShort:"(15) Idaho",homeShort:"(2) Houston",awayAbbr:"(15) IDHO",homeAbbr:"(2) HOU",gameId:"401856493",reg:"S",venue:"Paycom Center, Oklahoma City, OK",awayLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/70.png",homeLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/248.png",ascore:47,hscore:78,status:"final"},
+  {day:"Thu Mar 19",time:"4:27 PM",net:"TNT",away:"(14) North Dakota State Bison",home:"(3) Michigan State Spartans",awayShort:"(14) N Dakota St",homeShort:"(3) Michigan St",awayAbbr:"(14) NDSU",homeAbbr:"(3) MSU",gameId:"401856483",reg:"E",venue:"KeyBank Center, Buffalo, NY",awayLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/2449.png",homeLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/127.png",ascore:67,hscore:92,status:"final"},
+  {day:"Thu Mar 19",time:"9:55 PM",net:"TNT",away:"(14) Pennsylvania Quakers",home:"(3) Illinois Fighting Illini",awayShort:"(14) Penn",homeShort:"(3) Illinois",awayAbbr:"(14) PENN",homeAbbr:"(3) ILL",gameId:"401856491",reg:"S",venue:"Bon Secours Wellness Arena, Greenville, SC",awayLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/219.png",homeLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/356.png",ascore:70,hscore:105,status:"final"},
+  {day:"Thu Mar 19",time:"10:24 PM",net:"TBS",away:"(14) Kennesaw State Owls",home:"(3) Gonzaga Bulldogs",awayShort:"(14) Kennesaw St",homeShort:"(3) Gonzaga",awayAbbr:"(14) KENN",homeAbbr:"(3) GONZ",gameId:"401856485",reg:"W",venue:"Moda Center, Portland, OR",awayLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/338.png",homeLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/2250.png",ascore:64,hscore:73,status:"final"},
+  {day:"Thu Mar 19",time:"12:40 PM",net:"truTV",away:"(13) Troy Trojans",home:"(4) Nebraska Cornhuskers",awayShort:"(13) Troy",homeShort:"(4) Nebraska",awayAbbr:"(13) TROY",homeAbbr:"(4) NEB",gameId:"401856489",reg:"S",venue:"Paycom Center, Oklahoma City, OK",awayLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/2653.png",homeLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/158.png",ascore:47,hscore:76,status:"final"},
+  {day:"Thu Mar 19",time:"4:27 PM",net:"TBS",away:"(13) Hawai'i Rainbow Warriors",home:"(4) Arkansas Razorbacks",awayShort:"(13) Hawai'i",homeShort:"(4) Arkansas",awayAbbr:"(13) HAW",homeAbbr:"(4) ARK",gameId:"401856481",reg:"W",venue:"Moda Center, Portland, OR",awayLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/62.png",homeLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/8.png",ascore:78,hscore:97,status:"final"},
+  {day:"Thu Mar 19",time:"1:50 PM",net:"TBS",away:"(12) High Point Panthers",home:"(5) Wisconsin Badgers",awayShort:"(12) High Point",homeShort:"(5) Wisconsin",awayAbbr:"(12) HPU",homeAbbr:"(5) WIS",gameId:"401856480",reg:"W",venue:"Moda Center, Portland, OR",awayLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/2272.png",homeLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/275.png",ascore:83,hscore:82,status:"final"},
+  {day:"Thu Mar 19",time:"3:15 PM",net:"truTV",away:"(12) McNeese Cowboys",home:"(5) Vanderbilt Commodores",awayShort:"(12) McNeese",homeShort:"(5) Vanderbilt",awayAbbr:"(12) MCN",homeAbbr:"(5) VAN",gameId:"401856488",reg:"S",venue:"Paycom Center, Oklahoma City, OK",awayLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/2377.png",homeLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/238.png",ascore:68,hscore:78,status:"final"},
+  {day:"Thu Mar 19",time:"1:30 PM",net:"TNT",away:"(11) South Florida Bulls",home:"(6) Louisville Cardinals",awayShort:"(11) South Florida",homeShort:"(6) Louisville",awayAbbr:"(11) USF",homeAbbr:"(6) LOU",gameId:"401856482",reg:"E",venue:"KeyBank Center, Buffalo, NY",awayLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/58.png",homeLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/97.png",ascore:79,hscore:83,status:"final"},
+  {day:"Thu Mar 19",time:"6:50 PM",net:"TNT",away:"(11) VCU Rams",home:"(6) North Carolina Tar Heels",awayShort:"(11) VCU",homeShort:"(6) North Carolina",awayAbbr:"(11) VCU",homeAbbr:"(6) UNC",gameId:"401856490",reg:"S",venue:"Bon Secours Wellness Arena, Greenville, SC",awayLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/2670.png",homeLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/153.png",ascore:82,hscore:78,status:"final"},
+  {day:"Thu Mar 19",time:"7:35 PM",net:"TBS",away:"(11) Texas Longhorns",home:"(6) BYU Cougars",awayShort:"(11) Texas",homeShort:"(6) BYU",awayAbbr:"(11) TEX",homeAbbr:"(6) BYU",gameId:"401856484",reg:"W",venue:"Moda Center, Portland, OR",awayLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/251.png",homeLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/252.png",ascore:79,hscore:71,status:"final"},
+  {day:"Thu Mar 19",time:"7:35 PM",net:"truTV",away:"(10) Texas A&M Aggies",home:"(7) Saint Mary's Gaels",awayShort:"(10) Texas A&M",homeShort:"(7) Saint Mary's",awayAbbr:"(10) TA&M",homeAbbr:"(7) SMC",gameId:"401856492",reg:"S",venue:"Paycom Center, Oklahoma City, OK",awayLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/245.png",homeLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/2608.png",ascore:63,hscore:50,status:"final"},
+  {day:"Thu Mar 19",time:"12:15 PM",net:"CBS",away:"(9) TCU Horned Frogs",home:"(8) Ohio State Buckeyes",awayShort:"(9) TCU",homeShort:"(8) Ohio State",awayAbbr:"(9) TCU",homeAbbr:"(8) OSU",gameId:"401856479",reg:"E",venue:"Bon Secours Wellness Arena, Greenville, SC",awayLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/2628.png",homeLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/194.png",ascore:66,hscore:64,status:"final"},
+  {day:"Thu Mar 19",time:"10:10 PM",net:"CBS",away:"(9) Saint Louis Billikens",home:"(8) Georgia Bulldogs",awayShort:"(9) Saint Louis",homeShort:"(8) Georgia",awayAbbr:"(9) SLU",homeAbbr:"(8) UGA",gameId:"401856487",reg:"W",venue:"KeyBank Center, Buffalo, NY",awayLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/139.png",homeLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/61.png",ascore:102,hscore:77,status:"final"},
+  {day:"Fri Mar 20",time:"1:35 PM",net:"TNT",away:"(16) Long Island University Sharks",home:"(1) Arizona Wildcats",awayShort:"(16) Long Island",homeShort:"(1) Arizona",awayAbbr:"(16) LIU",homeAbbr:"(1) ARIZ",gameId:"401856529",reg:"W",venue:"Viejas Arena, San Diego, CA",awayLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/112358.png",homeLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/12.png",ascore:58,hscore:92,status:"final"},
+  {day:"Fri Mar 20",time:"9:25 PM",net:"TNT",away:"(16) Prairie View A&M Panthers",home:"(1) Florida Gators",awayShort:"(16) Prairie View",homeShort:"(1) Florida",awayAbbr:"(16) PV",homeAbbr:"(1) FLA",gameId:"401856523",reg:"S",venue:"Benchmark International Arena, Tampa, FL",awayLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/2504.png",homeLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/57.png",ascore:55,hscore:114,status:"final"},
+  {day:"Fri Mar 20",time:"3:07 PM",net:"CBS",away:"(15) Tennessee State Tigers",home:"(2) Iowa State Cyclones",awayShort:"(15) Tennessee St",homeShort:"(2) Iowa State",awayAbbr:"(15) TNST",homeAbbr:"(2) ISU",gameId:"401856524",reg:"W",venue:"Enterprise Center, St. Louis, MO",awayLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/2634.png",homeLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/66.png",ascore:74,hscore:108,status:"final"},
+  {day:"Fri Mar 20",time:"7:35 PM",net:"truTV",away:"(15) Queens University Royals",home:"(2) Purdue Boilermakers",awayShort:"(15) Queens",homeShort:"(2) Purdue",awayAbbr:"(15) QUC",homeAbbr:"(2) PUR",gameId:"401856519",reg:"W",venue:"Enterprise Center, St. Louis, MO",awayLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/2511.png",homeLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/2509.png",ascore:71,hscore:104,status:"final"},
+  {day:"Fri Mar 20",time:"10:31 PM",net:"TBS",away:"(15) Furman Paladins",home:"(2) UConn Huskies",awayShort:"(15) Furman",homeShort:"(2) UConn",awayAbbr:"(15) FUR",homeAbbr:"(2) CONN",gameId:"401856497",reg:"E",venue:"Xfinity Mobile Arena, Philadelphia, PA",awayLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/231.png",homeLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/41.png",ascore:71,hscore:82,status:"final"},
+  {day:"Fri Mar 20",time:"1:50 PM",net:"TBS",away:"(14) Wright State Raiders",home:"(3) Virginia Cavaliers",awayShort:"(14) Wright St",homeShort:"(3) Virginia",awayAbbr:"(14) WRST",homeAbbr:"(3) UVA",gameId:"401856526",reg:"W",venue:"Xfinity Mobile Arena, Philadelphia, PA",awayLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/2750.png",homeLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/258.png",ascore:73,hscore:82,status:"final"},
+  {day:"Fri Mar 20",time:"3:15 PM",net:"truTV",away:"(13) Hofstra Pride",home:"(4) Alabama Crimson Tide",awayShort:"(13) Hofstra",homeShort:"(4) Alabama",awayAbbr:"(13) HOF",homeAbbr:"(4) ALA",gameId:"401856521",reg:"W",venue:"Benchmark International Arena, Tampa, FL",awayLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/2275.png",homeLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/333.png",ascore:70,hscore:90,status:"final"},
+  {day:"Fri Mar 20",time:"10:07 PM",net:"CBS",away:"(13) California Baptist Lancers",home:"(4) Kansas Jayhawks",awayShort:"(13) CA Baptist",homeShort:"(4) Kansas",awayAbbr:"(13) CBU",homeAbbr:"(4) KU",gameId:"401856495",reg:"E",venue:"Viejas Arena, San Diego, CA",awayLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/2856.png",homeLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/2305.png",ascore:60,hscore:68,status:"final"},
+  {day:"Fri Mar 20",time:"12:40 PM",net:"truTV",away:"(12) Akron Zips",home:"(5) Texas Tech Red Raiders",awayShort:"(12) Akron",homeShort:"(5) Texas Tech",awayAbbr:"(12) AKR",homeAbbr:"(5) TTU",gameId:"401856520",reg:"W",venue:"Benchmark International Arena, Tampa, FL",awayLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/2006.png",homeLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/2641.png",ascore:71,hscore:91,status:"final"},
+  {day:"Fri Mar 20",time:"7:25 PM",net:"CBS",away:"(12) Northern Iowa Panthers",home:"(5) St. John's Red Storm",awayShort:"(12) Northern Iowa",homeShort:"(5) St John's",awayAbbr:"(12) UNI",homeAbbr:"(5) SJU",gameId:"401856494",reg:"E",venue:"Viejas Arena, San Diego, CA",awayLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/2460.png",homeLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/2599.png",ascore:53,hscore:79,status:"final"},
+  {day:"Fri Mar 20",time:"4:25 PM",net:"TBS",away:"(11) Miami (OH) RedHawks",home:"(6) Tennessee Volunteers",awayShort:"(11) Miami OH",homeShort:"(6) Tennessee",awayAbbr:"(11) M-OH",homeAbbr:"(6) TENN",gameId:"401856527",reg:"W",venue:"Xfinity Mobile Arena, Philadelphia, PA",awayLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/193.png",homeLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/2633.png",ascore:56,hscore:78,status:"final"},
+  {day:"Fri Mar 20",time:"12:15 PM",net:"CBS",away:"(10) Santa Clara Broncos",home:"(7) Kentucky Wildcats",awayShort:"(10) Santa Clara",homeShort:"(7) Kentucky",awayAbbr:"(10) SCU",homeAbbr:"(7) UK",gameId:"401856525",reg:"W",venue:"Enterprise Center, St. Louis, MO",awayLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/2541.png",homeLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/96.png",ascore:84,hscore:89,status:"final"},
+  {day:"Fri Mar 20",time:"7:31 PM",net:"TBS",away:"(10) UCF Knights",home:"(7) UCLA Bruins",awayShort:"(10) UCF",homeShort:"(7) UCLA",awayAbbr:"(10) UCF",homeAbbr:"(7) UCLA",gameId:"401856496",reg:"E",venue:"Xfinity Mobile Arena, Philadelphia, PA",awayLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/2116.png",homeLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/26.png",ascore:71,hscore:75,status:"final"},
+  {day:"Fri Mar 20",time:"10:07 PM",net:"truTV",away:"(10) Missouri Tigers",home:"(7) Miami Hurricanes",awayShort:"(10) Missouri",homeShort:"(7) Miami",awayAbbr:"(10) MIZ",homeAbbr:"(7) MIA",gameId:"401856518",reg:"W",venue:"Enterprise Center, St. Louis, MO",awayLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/142.png",homeLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/2390.png",ascore:66,hscore:80,status:"final"},
+  {day:"Fri Mar 20",time:"4:10 PM",net:"TNT",away:"(9) Utah State Aggies",home:"(8) Villanova Wildcats",awayShort:"(9) Utah State",homeShort:"(8) Villanova",awayAbbr:"(9) USU",homeAbbr:"(8) VILL",gameId:"401856528",reg:"W",venue:"Viejas Arena, San Diego, CA",awayLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/328.png",homeLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/222.png",ascore:86,hscore:76,status:"final"},
+  {day:"Fri Mar 20",time:"6:50 PM",net:"TNT",away:"(9) Iowa Hawkeyes",home:"(8) Clemson Tigers",awayShort:"(9) Iowa",homeShort:"(8) Clemson",awayAbbr:"(9) IOWA",homeAbbr:"(8) CLEM",gameId:"401856522",reg:"S",venue:"Benchmark International Arena, Tampa, FL",awayLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/2294.png",homeLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/228.png",ascore:67,hscore:61,status:"final"},
+  {day:"Sat Mar 21",time:"8:15 PM",net:"CBS",away:"(11) VCU Rams",home:"(3) Illinois Fighting Illini",awayShort:"(11) VCU",homeShort:"(3) Illinois",awayAbbr:"(11) VCU",homeAbbr:"(3) ILL",gameId:"401856533",reg:"S",venue:"Bon Secours Wellness Arena, Greenville, SC",awayLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/2670.png",homeLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/356.png",status:"live"},
+  {day:"Sat Mar 21",time:"9:02 PM",net:"TNT",away:"(5) Vanderbilt Commodores",home:"(4) Nebraska Cornhuskers",awayShort:"(5) Vanderbilt",homeShort:"(4) Nebraska",awayAbbr:"(5) VAN",homeAbbr:"(4) NEB",gameId:"401856534",reg:"S",venue:"Paycom Center, Oklahoma City, OK",awayLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/238.png",homeLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/158.png",status:"live"},
+  {day:"Sat Mar 21",time:"9:45 PM",net:"truTV",away:"(12) High Point Panthers",home:"(4) Arkansas Razorbacks",awayShort:"(12) High Point",homeShort:"(4) Arkansas",awayAbbr:"(12) HPU",homeAbbr:"(4) ARK",gameId:"401856536",reg:"W",venue:"Moda Center, Portland, OR",awayLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/2272.png",homeLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/8.png",status:"live"},
+  {day:"Sat Mar 21",time:"12:10 PM",net:"CBS",away:"(9) Saint Louis Billikens",home:"(1) Michigan Wolverines",awayShort:"(9) Saint Louis",homeShort:"(1) Michigan",awayAbbr:"(9) SLU",homeAbbr:"(1) MICH",gameId:"401856532",reg:"W",venue:"KeyBank Center, Buffalo, NY",awayLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/139.png",homeLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/130.png",ascore:72,hscore:95,status:"final"},
+  {day:"Sat Mar 21",time:"5:25 PM",net:"CBS",away:"(9) TCU Horned Frogs",home:"(1) Duke Blue Devils",awayShort:"(9) TCU",homeShort:"(1) Duke",awayAbbr:"(9) TCU",homeAbbr:"(1) DUKE",gameId:"401856530",reg:"E",venue:"Bon Secours Wellness Arena, Greenville, SC",awayLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/2628.png",homeLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/150.png",ascore:58,hscore:81,status:"final"},
+  {day:"Sat Mar 21",time:"6:10 PM",net:"TNT",away:"(10) Texas A&M Aggies",home:"(2) Houston Cougars",awayShort:"(10) Texas A&M",homeShort:"(2) Houston",awayAbbr:"(10) TA&M",homeAbbr:"(2) HOU",gameId:"401856535",reg:"S",venue:"Paycom Center, Oklahoma City, OK",awayLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/245.png",homeLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/248.png",ascore:57,hscore:88,status:"final"},
+  {day:"Sat Mar 21",time:"2:45 PM",net:"CBS",away:"(6) Louisville Cardinals",home:"(3) Michigan State Spartans",awayShort:"(6) Louisville",homeShort:"(3) Michigan St",awayAbbr:"(6) LOU",homeAbbr:"(3) MSU",gameId:"401856531",reg:"E",venue:"KeyBank Center, Buffalo, NY",awayLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/97.png",homeLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/127.png",ascore:69,hscore:77,status:"final"},
+  {day:"Sat Mar 21",time:"7:10 PM",net:"truTV",away:"(11) Texas Longhorns",home:"(3) Gonzaga Bulldogs",awayShort:"(11) Texas",homeShort:"(3) Gonzaga",awayAbbr:"(11) TEX",homeAbbr:"(3) GONZ",gameId:"401856537",reg:"W",venue:"Moda Center, Portland, OR",awayLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/251.png",homeLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/2250.png",ascore:74,hscore:68,status:"final"},
+  {day:"Sun Mar 22",time:"12:10 PM",net:"CBS",away:"(7) Miami Hurricanes",home:"(2) Purdue Boilermakers",awayShort:"(7) Miami",homeShort:"(2) Purdue",awayAbbr:"(7) MIA",homeAbbr:"(2) PUR",gameId:"401856564",reg:"W",venue:"Enterprise Center, St. Louis, MO",awayLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/2390.png",homeLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/2509.png"},
+  {day:"Sun Mar 22",time:"2:45 PM",net:"CBS",away:"(7) Kentucky Wildcats",home:"(2) Iowa State Cyclones",awayShort:"(7) Kentucky",homeShort:"(2) Iowa State",awayAbbr:"(7) UK",homeAbbr:"(2) ISU",gameId:"401856561",reg:"W",venue:"Enterprise Center, St. Louis, MO",awayLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/96.png",homeLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/66.png"},
+  {day:"Sun Mar 22",time:"5:15 PM",net:"CBS",away:"(5) St. John's Red Storm",home:"(4) Kansas Jayhawks",awayShort:"(5) St John's",homeShort:"(4) Kansas",awayAbbr:"(5) SJU",homeAbbr:"(4) KU",gameId:"401856558",reg:"E",venue:"Viejas Arena, San Diego, CA",awayLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/2599.png",homeLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/2305.png"},
+  {day:"Sun Mar 22",time:"6:10 PM",net:"TNT",away:"(6) Tennessee Volunteers",home:"(3) Virginia Cavaliers",awayShort:"(6) Tennessee",homeShort:"(3) Virginia",awayAbbr:"(6) TENN",homeAbbr:"(3) UVA",gameId:"401856562",reg:"W",venue:"Xfinity Mobile Arena, Philadelphia, PA",awayLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/2633.png",homeLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/258.png"},
+  {day:"Sun Mar 22",time:"7:10 PM",net:"TBS",away:"(9) Iowa Hawkeyes",home:"(1) Florida Gators",awayShort:"(9) Iowa",homeShort:"(1) Florida",awayAbbr:"(9) IOWA",homeAbbr:"(1) FLA",gameId:"401856563",reg:"S",venue:"Benchmark International Arena, Tampa, FL",awayLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/2294.png",homeLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/57.png"},
+  {day:"Sun Mar 22",time:"7:50 PM",net:"truTV",away:"(9) Utah State Aggies",home:"(1) Arizona Wildcats",awayShort:"(9) Utah State",homeShort:"(1) Arizona",awayAbbr:"(9) USU",homeAbbr:"(1) ARIZ",gameId:"401856565",reg:"W",venue:"Viejas Arena, San Diego, CA",awayLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/328.png",homeLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/12.png"},
+  {day:"Sun Mar 22",time:"8:45 PM",net:"TNT",away:"(7) UCLA Bruins",home:"(2) UConn Huskies",awayShort:"(7) UCLA",homeShort:"(2) UConn",awayAbbr:"(7) UCLA",homeAbbr:"(2) CONN",gameId:"401856559",reg:"E",venue:"Xfinity Mobile Arena, Philadelphia, PA",awayLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/26.png",homeLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/41.png"},
+  {day:"Sun Mar 22",time:"9:45 PM",net:"TBS",away:"(5) Texas Tech Red Raiders",home:"(4) Alabama Crimson Tide",awayShort:"(5) Texas Tech",homeShort:"(4) Alabama",awayAbbr:"(5) TTU",homeAbbr:"(4) ALA",gameId:"401856560",reg:"W",venue:"Benchmark International Arena, Tampa, FL",awayLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/2641.png",homeLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/333.png"},
+  {day:"Thu Mar 26",time:"12:00 AM",net:"",away:"TBD",home:"(2) Houston Cougars",awayShort:"TBD",homeShort:"(2) Houston",awayAbbr:"TBD",homeAbbr:"(2) HOU",gameId:"401856566",reg:"S",venue:"Toyota Center (Houston), Houston, TX",awayLogo:"",homeLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/248.png"},
+  {day:"Thu Mar 26",time:"12:00 AM",net:"",away:"(11) Texas Longhorns",home:"TBD",awayShort:"(11) Texas",homeShort:"TBD",awayAbbr:"(11) TEX",homeAbbr:"TBD",gameId:"401856568",reg:"W",venue:"SAP Center at San Jose, San Jose, CA",awayLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/251.png",homeLogo:""},
+  {day:"Thu Mar 26",time:"12:00 AM",net:"",away:"TBD",home:"TBD",awayShort:"TBD",homeShort:"TBD",awayAbbr:"TBD",homeAbbr:"TBD",gameId:"401856569",reg:"W",venue:"SAP Center at San Jose, San Jose, CA",awayLogo:"",homeLogo:""},
+  {day:"Thu Mar 26",time:"12:00 AM",net:"",away:"TBD",home:"TBD",awayShort:"TBD",homeShort:"TBD",awayAbbr:"TBD",homeAbbr:"TBD",gameId:"401856567",reg:"S",venue:"Toyota Center (Houston), Houston, TX",awayLogo:"",homeLogo:""},
+  {day:"Fri Mar 27",time:"12:00 AM",net:"",away:"TBD",home:"(1) Michigan Wolverines",awayShort:"TBD",homeShort:"(1) Michigan",awayAbbr:"TBD",homeAbbr:"(1) MICH",gameId:"401856572",reg:"W",venue:"United Center, Chicago, IL",awayLogo:"",homeLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/130.png"},
+  {day:"Fri Mar 27",time:"12:00 AM",net:"",away:"TBD",home:"(1) Duke Blue Devils",awayShort:"TBD",homeShort:"(1) Duke",awayAbbr:"TBD",homeAbbr:"(1) DUKE",gameId:"401856570",reg:"E",venue:"Capital One Arena, Washington, DC",awayLogo:"",homeLogo:"https://a.espncdn.com/i/teamlogos/ncaa/500/150.png"},
+  {day:"Fri Mar 27",time:"12:00 AM",net:"",away:"TBD",home:"TBD",awayShort:"TBD",homeShort:"TBD",awayAbbr:"TBD",homeAbbr:"TBD",gameId:"401856573",reg:"W",venue:"United Center, Chicago, IL",awayLogo:"",homeLogo:""},
+  {day:"Fri Mar 27",time:"12:00 AM",net:"",away:"TBD",home:"TBD",awayShort:"TBD",homeShort:"TBD",awayAbbr:"TBD",homeAbbr:"TBD",gameId:"401856571",reg:"E",venue:"Capital One Arena, Washington, DC",awayLogo:"",homeLogo:""},
+  {day:"Sat Mar 28",time:"12:00 AM",net:"",away:"TBD",home:"TBD",awayShort:"TBD",homeShort:"TBD",awayAbbr:"TBD",homeAbbr:"TBD",gameId:"401856575",reg:"W",venue:"SAP Center at San Jose, San Jose, CA",awayLogo:"",homeLogo:""},
+  {day:"Sat Mar 28",time:"12:00 AM",net:"",away:"TBD",home:"TBD",awayShort:"TBD",homeShort:"TBD",awayAbbr:"TBD",homeAbbr:"TBD",gameId:"401856574",reg:"S",venue:"Toyota Center (Houston), Houston, TX",awayLogo:"",homeLogo:""},
+  {day:"Sun Mar 29",time:"12:00 AM",net:"",away:"TBD",home:"TBD",awayShort:"TBD",homeShort:"TBD",awayAbbr:"TBD",homeAbbr:"TBD",gameId:"401856577",reg:"E",venue:"Capital One Arena, Washington, DC",awayLogo:"",homeLogo:""},
+  {day:"Sun Mar 29",time:"12:00 AM",net:"",away:"TBD",home:"TBD",awayShort:"TBD",homeShort:"TBD",awayAbbr:"TBD",homeAbbr:"TBD",gameId:"401856576",reg:"W",venue:"United Center, Chicago, IL",awayLogo:"",homeLogo:""},
+  {day:"Sat Apr 4",time:"12:00 AM",net:"",away:"TBD",home:"TBD",awayShort:"TBD",homeShort:"TBD",awayAbbr:"TBD",homeAbbr:"TBD",gameId:"401856599",reg:"F4",venue:"Lucas Oil Stadium, Indianapolis, IN",awayLogo:"",homeLogo:""},
+  {day:"Sat Apr 4",time:"12:00 AM",net:"",away:"TBD",home:"TBD",awayShort:"TBD",homeShort:"TBD",awayAbbr:"TBD",homeAbbr:"TBD",gameId:"401856598",reg:"F4",venue:"Lucas Oil Stadium, Indianapolis, IN",awayLogo:"",homeLogo:""},
+  {day:"Mon Apr 6",time:"12:00 AM",net:"",away:"TBD",home:"TBD",awayShort:"TBD",homeShort:"TBD",awayAbbr:"TBD",homeAbbr:"TBD",gameId:"401856600",reg:"CHAMP",venue:"Lucas Oil Stadium, Indianapolis, IN",awayLogo:"",homeLogo:""},
+].map(g => ({...g, gender:"M"}));
+
+// ─────────────────────────────────────────────
+// COMBINED SCHEDULE
+// ─────────────────────────────────────────────
+const G = [...G_WBB, ...G_MBB];
+
+const ALL_DAY_ORDER = ["Tue Mar 17","Wed Mar 18","Thu Mar 19","Fri Mar 20","Sat Mar 21","Sun Mar 22","Mon Mar 23","Thu Mar 26","Fri Mar 27","Sat Mar 28","Sun Mar 29","Mon Mar 30","Fri Apr 3","Sat Apr 4","Sun Apr 5","Mon Apr 6"];
+const days = ALL_DAY_ORDER.filter(d => G.some(g => g.day === d));
+
+const roundMap = {
+  "Tue Mar 17":"First4","Wed Mar 18":"First4",
+  "Thu Mar 19":"R1","Fri Mar 20":"R1",
+  "Sat Mar 21":"R2","Sun Mar 22":"R2",
+  "Mon Mar 23":"R2",
+  "Thu Mar 26":"S16","Fri Mar 27":"S16",
+  "Sat Mar 28":"E8","Sun Mar 29":"E8",
+  "Mon Mar 30":"E8",
+  "Fri Apr 3":"Semi","Sat Apr 4":"Semi",
+  "Sun Apr 5":"Champ","Mon Apr 6":"Champ"
+};
+
+const WBB_ROUND = {
+  "Wed Mar 18":"First4","Thu Mar 19":"First4",
+  "Fri Mar 20":"R1","Sat Mar 21":"R1",
+  "Sun Mar 22":"R2","Mon Mar 23":"R2",
+  "Fri Mar 27":"S16","Sat Mar 28":"S16",
+  "Sun Mar 29":"E8","Mon Mar 30":"E8",
+  "Fri Apr 3":"Semi","Sun Apr 5":"Champ",
+};
+const MBB_ROUND = {
+  "Tue Mar 17":"First4","Wed Mar 18":"First4",
+  "Thu Mar 19":"R1","Fri Mar 20":"R1",
+  "Sat Mar 21":"R2","Sun Mar 22":"R2",
+  "Thu Mar 26":"S16","Fri Mar 27":"S16",
+  "Sat Mar 28":"E8","Sun Mar 29":"E8",
+  "Sat Apr 4":"Semi","Mon Apr 6":"Champ",
+};
+function getRoundLabel(day, gender){
+  return gender==='W' ? (WBB_ROUND[day]||'') : (MBB_ROUND[day]||'');
+}
+
+const SWEET16_DAYS = new Set(["Fri Mar 27","Sat Mar 28","Thu Mar 26"]);
+const ELITE8_DAYS  = new Set(["Sun Mar 29","Mon Mar 30","Sat Mar 28","Sun Mar 29"]);
+const FINAL4_DAYS  = new Set(["Fri Apr 3","Sat Apr 4","Sun Apr 5","Mon Apr 6"]);
+const deepRunDays  = new Set([...SWEET16_DAYS,...ELITE8_DAYS,...FINAL4_DAYS]);
+
+function getCinderellaTeams(){
+  const c = new Map();
+  G.forEach(g=>{
+    if(!deepRunDays.has(g.day))return;
+    const am=g.away.match(/^[(]([0-9]+)[)]/);
+    const hm=g.home.match(/^[(]([0-9]+)[)]/);
+    if(am&&parseInt(am[1])>=10){
+      const bare=g.away.replace(/^[(][0-9]+[)] */,"");
+      const key=bare+"|"+g.gender;
+      if(!c.has(key)) c.set(key,{gender:g.gender,logo:g.awayLogo,seeded:g.away,bare});
+    }
+    if(hm&&parseInt(hm[1])>=10){
+      const bare=g.home.replace(/^[(][0-9]+[)] */,"");
+      const key=bare+"|"+g.gender;
+      if(!c.has(key)) c.set(key,{gender:g.gender,logo:g.homeLogo,seeded:g.home,bare});
+    }
+  });
+  return c;
+}
+const cinderellaTeams = getCinderellaTeams();
+function isCinderella(t){
+  const bare=t.replace(/^[(][0-9]+[)] */,"");
+  // Check both genders — used for wand SVG on game bars where we have gender context separately
+  return cinderellaTeams.has(bare+"|W")||cinderellaTeams.has(bare+"|M");
+}
+
+const FIRST_FOUR_DAYS = new Set(["Tue Mar 17","Wed Mar 18"]);
+function getBubbleTeams(){
+  // Keys on bareName|gender so MBB bubble teams don't bleed into WBB and vice versa
+  const w=new Set();
+  G.forEach(g=>{
+    if(!FIRST_FOUR_DAYS.has(g.day)||g.status!=="final")return;
+    const ab=g.away.replace(/^[(][0-9]+[)] */,"");
+    const hb=g.home.replace(/^[(][0-9]+[)] */,"");
+    if(g.ascore>g.hscore)w.add(ab+"|"+g.gender);
+    else if(g.hscore>g.ascore)w.add(hb+"|"+g.gender);
+  });
+  return w;
+}
+const bubbleTeams = getBubbleTeams();
+function isBubbleForDay(t,gender,d){
+  return bubbleTeams.has(t.replace(/^[(][0-9]+[)] */,"")+"|"+gender)&&!FIRST_FOUR_DAYS.has(d);
+}
+
+// ─────────────────────────────────────────────
+// TIMEZONE
+// ─────────────────────────────────────────────
+const _userTZ = Intl.DateTimeFormat().resolvedOptions().timeZone;
+const US_TZ_MAP = {
+  'America/New_York':{name:'Eastern Time',abbr:'ET',etDiff:0},
+  'America/Detroit':{name:'Eastern Time',abbr:'ET',etDiff:0},
+  'America/Indiana/Indianapolis':{name:'Eastern Time',abbr:'ET',etDiff:0},
+  'America/Kentucky/Louisville':{name:'Eastern Time',abbr:'ET',etDiff:0},
+  'America/Chicago':{name:'Central Time',abbr:'CT',etDiff:-1},
+  'America/Indiana/Knox':{name:'Central Time',abbr:'CT',etDiff:-1},
+  'America/Menominee':{name:'Central Time',abbr:'CT',etDiff:-1},
+  'America/Denver':{name:'Mountain Time',abbr:'MT',etDiff:-2},
+  'America/Boise':{name:'Mountain Time',abbr:'MT',etDiff:-2},
+  'America/Phoenix':{name:'Mountain Time',abbr:'MT',etDiff:-2},
+  'America/Los_Angeles':{name:'Pacific Time',abbr:'PT',etDiff:-3},
+  'America/Anchorage':{name:'Alaska Time',abbr:'AKT',etDiff:-4},
+  'America/Juneau':{name:'Alaska Time',abbr:'AKT',etDiff:-4},
+  'Pacific/Honolulu':{name:'Hawaii Time',abbr:'HT',etDiff:-6},
+};
+const _tzInfo = US_TZ_MAP[_userTZ]||null;
+const _isET   = _tzInfo?_tzInfo.abbr==='ET':false;
+const _isUS   = !!_tzInfo;
+const _tzLabel = _tzInfo?_tzInfo.name:'Eastern Time';
+
+function toLocalTime(etStr){
+  if(!etStr||etStr==='TBD'||etStr==='12:00 AM')return etStr;
+  if(!_isUS||_isET)return etStr;
+  const[hm,ap]=etStr.split(' ');let[h,m]=hm.split(':').map(Number);
+  if(ap==='PM'&&h!==12)h+=12;if(ap==='AM'&&h===12)h=0;
+  let lh=h+_tzInfo.etDiff;if(lh<0)lh+=24;if(lh>=24)lh-=24;
+  const lap=lh>=12?'PM':'AM';let h12=lh>12?lh-12:(lh===0?12:lh);
+  return h12+(m>0?':'+String(m).padStart(2,'0'):'')+' '+lap;
+}
+function toLocalMin(etStr){
+  if(!etStr||etStr==='TBD'||etStr==='12:00 AM')return null;
+  const local=toLocalTime(etStr);if(!local||local==='TBD'||local==='12:00 AM')return null;
+  const[hm,ap]=local.split(' ');let[h,m]=hm.split(':').map(Number);
+  if(ap==='PM'&&h!==12)h+=12;if(ap==='AM'&&h===12)h=0;
+  return h*60+m;
+}
+function toMin(t){if(!t||t==='TBD'||t==='12:00 AM')return null;const[hm,ap]=t.split(' ');let[h,m]=hm.split(':').map(Number);if(ap==='PM'&&h!==12)h+=12;if(ap==='AM'&&h===12)h=0;return h*60+m;}
+
+const _tzSubEl=document.getElementById('tzSubtitle');
+if(_tzSubEl){
+  if(!_isUS)_tzSubEl.textContent='Times in Eastern Time — non-US timezone, defaulting to ET';
+  else if(_isET)_tzSubEl.textContent='All times Eastern · Tap a day to navigate';
+  else _tzSubEl.textContent='Times in your local timezone ('+_tzInfo.name+') · Tap a day to navigate';
+}
+
+// ─────────────────────────────────────────────
+// ROTATE OVERLAY LOGIC
+// ─────────────────────────────────────────────
+function checkRotate(){
+  if(localStorage.getItem('skipRotate'))return;
+  const portrait = window.innerHeight > window.innerWidth;
+  const mobile   = window.innerWidth < 768;
+  const el = document.getElementById('rotateOverlay');
+  if(el) el.classList.toggle('show', portrait && mobile);
+}
+window.addEventListener('orientationchange',()=>setTimeout(checkRotate,200));
+window.addEventListener('resize', checkRotate);
+checkRotate();
+
+// ─────────────────────────────────────────────
+// TAB & STATE
+// ─────────────────────────────────────────────
+const now0=new Date();
+const todayStr=now0.toLocaleDateString("en-US",{weekday:"short",month:"short",day:"numeric"}).replace(",","");
+const todayDay=days.find(d=>d===todayStr)||days[0];
+let activeDay=todayDay;
+
+function buildTabs(){
+  const c=document.getElementById("dayTabs");
+  days.forEach(d=>{
+    const hasW = G.some(g=>g.day===d&&g.gender==='W');
+    const hasM = G.some(g=>g.day===d&&g.gender==='M');
+    const genderCls = (hasW&&hasM)?'has-both':hasW?'has-wbb':'has-mbb';
+    const b=document.createElement("button");
+    b.className="day-btn "+genderCls+(d===activeDay?" active":"")+(d===todayDay?" today":"");
+    b.innerHTML=d;
+    b.onclick=()=>{activeDay=d;document.querySelectorAll(".day-btn").forEach(x=>x.classList.remove("active"));b.classList.add("active");render();updateNavArrows();};
+    c.appendChild(b);
+  });
+}
+
+// ─────────────────────────────────────────────
+// WATCH PARTY DATA (Philly)
+// ─────────────────────────────────────────────
+// ─────────────────────────────────────────────
+// RENDER
+// ─────────────────────────────────────────────
+const WBB_ROUND_INFO = {
+  "Sun Mar 22":{total:8,partner:"Mon Mar 23",partnerShort:"the 23rd",round:"WBB Second Round"},
+  "Mon Mar 23":{total:8,partner:"Sun Mar 22",partnerShort:"the 22nd",round:"WBB Second Round"},
+  "Fri Mar 27":{total:4,partner:"Sat Mar 28",partnerShort:"the 28th",round:"WBB Sweet 16"},
+  "Sat Mar 28":{total:4,partner:"Fri Mar 27",partnerShort:"the 27th",round:"WBB Sweet 16"},
+  "Sun Mar 29":{total:2,partner:null,partnerShort:null,round:"WBB Elite Eight"},
+  "Mon Mar 30":{total:2,partner:null,partnerShort:null,round:"WBB Elite Eight"},
+  "Fri Apr 3":{total:2,partner:null,partnerShort:null,round:"WBB Final Four"},
+  "Sun Apr 5":{total:1,partner:null,partnerShort:null,round:"WBB Championship"},
+};
+const MBB_ROUND_INFO = {
+  "Sat Mar 21":{total:8,partner:"Sun Mar 22",partnerShort:"the 22nd",round:"MBB Second Round"},
+  "Sun Mar 22":{total:8,partner:"Sat Mar 21",partnerShort:"the 21st",round:"MBB Second Round"},
+  "Thu Mar 26":{total:4,partner:"Fri Mar 27",partnerShort:"the 27th",round:"MBB Sweet 16"},
+  "Fri Mar 27":{total:4,partner:"Thu Mar 26",partnerShort:"the 26th",round:"MBB Sweet 16"},
+  "Sat Mar 28":{total:2,partner:null,partnerShort:null,round:"MBB Elite Eight"},
+  "Sun Mar 29":{total:2,partner:null,partnerShort:null,round:"MBB Elite Eight"},
+  "Sat Apr 4":{total:2,partner:null,partnerShort:null,round:"MBB Final Four"},
+  "Mon Apr 6":{total:1,partner:null,partnerShort:null,round:"MBB Championship"},
+};
+
+function render(){
+  let allGames = G.filter(g=>g.day===activeDay);
+  // Apply filter
+  if(activeFilter==='wbb') allGames = allGames.filter(g=>g.gender==='W');
+  if(activeFilter==='mbb') allGames = allGames.filter(g=>g.gender==='M');
+
+  const container = document.getElementById("gridContainer");
+  const note      = document.getElementById("overlapNote");
+  note.style.display = "none";
+
+  document.getElementById("stickyDayLabel").textContent = "Viewing "+(activeDay===todayDay?"TODAY":activeDay);
+
+  // Cinderella banner
+  const cinBanner = document.getElementById("cinderellaBanner");
+  const daycins = [...cinderellaTeams.entries()].filter(([key, info])=>
+    allGames.some(g=>g.gender===info.gender&&(g.away.includes(info.bare)||g.home.includes(info.bare)))
+  );
+  if(daycins.length){
+    cinBanner.style.display="block";
+    const items = daycins.map(([key, info])=>{
+      const gColor = info.gender==='W' ? 'var(--wbb)' : 'var(--mbb)';
+      const gLabel = info.gender==='W' ? 'WBB' : 'MBB';
+      const badge = "<span style='font-size:9px;font-weight:800;color:"+gColor+";border:1.5px solid "+gColor+";border-radius:4px;padding:1px 4px;margin-right:5px;white-space:nowrap'>"+gLabel+"</span>";
+      const logo = info.logo ? "<img src='"+info.logo+"' style='width:14px;height:14px;object-fit:contain;vertical-align:middle;margin-right:3px'>" : "";
+      return badge+logo+"<span style='font-weight:600'>"+info.seeded+"</span> still dancing!";
+    });
+    cinBanner.innerHTML = "<b>✨ Cinderella"+(daycins.length>1?" alerts":" alert")+"</b> — "+items.join(" &nbsp;·&nbsp; ");
+  } else { cinBanner.style.display="none"; }
+
+  // TBD banner
+  const tbdBanner = document.getElementById("tbdBanner");
+  const tbdLines = [];
+  [["W", WBB_ROUND_INFO], ["M", MBB_ROUND_INFO]].forEach(([gender, INFO])=>{
+    const roundInfo = INFO[activeDay];
+    if(!roundInfo) return;
+    const todayGames = G.filter(g=>g.day===activeDay&&g.gender===gender);
+    const todayWithTime = todayGames.filter(g=>toMin(g.time)!==null).length;
+    const todayTBD = todayGames.length - todayWithTime;
+    if(todayTBD === 0) return;
+    const partnerDay = roundInfo.partner;
+    const partnerGames = partnerDay ? G.filter(g=>g.day===partnerDay&&g.gender===gender) : [];
+    const partnerWithTime = partnerGames.filter(g=>toMin(g.time)!==null).length;
+    let blurb = "";
+    if(todayWithTime===0 && partnerWithTime===0){
+      if(partnerDay){
+        blurb = roundInfo.total+" "+roundInfo.round+" games split between "+activeDay+" and "+roundInfo.partnerShort+" — which ones air on which day is TBD!";
+      } else {
+        blurb = roundInfo.total+" "+roundInfo.round+(roundInfo.total===1?" game":" games")+" — matchups TBD after previous round.";
+      }
+    } else {
+      blurb = todayTBD+" more "+roundInfo.round+" game"+(todayTBD===1?"":"s")+" on "+activeDay+" TBD — check back for the full slate.";
+    }
+    const noTimeGames = todayGames.filter(g=>toMin(g.time)===null&&(g.away!=="TBD"||g.home!=="TBD"));
+    if(noTimeGames.length){
+      const rows = noTimeGames.map(g=>{
+        const a = g.away==="TBD"?"TBD":(g.awayShort||g.away);
+        const h = g.home==="TBD"?"TBD":(g.homeShort||g.home);
+        const pod = g.reg||"";
+        const pc = pod.startsWith("FW")?"#b03030":pod.startsWith("SAC")?"#1a5fa0":pod==="F4"?"#5040b0":"var(--text3)";
+        return "<div style='margin-top:3px'><span style='font-size:9px;font-weight:700;color:"+pc+";margin-right:4px'>"+pod+"</span>"+a+" vs "+h+"</div>";
+      }).join("");
+      blurb = "<div style='margin-bottom:4px'>"+blurb+"</div>"+rows;
+    }
+    tbdLines.push(blurb);
+  });
+  if(tbdLines.length){
+    tbdBanner.style.display="block";
+    tbdBanner.innerHTML = tbdLines.join("<div style='margin-top:8px'></div>");
+  } else {
+    tbdBanner.style.display="none";
+  }
+
+  // Day summary
+  const sumEl = document.getElementById("daySummary");
+  const scheduledGames = allGames.filter(g=>toLocalMin(g.time)!==null);
+  const tbdGames = allGames.filter(g=>toLocalMin(g.time)===null);
+
+  function genderBreakdown(games) {
+    const w = games.filter(g=>g.gender==='W').length;
+    const m = games.filter(g=>g.gender==='M').length;
+    const parts = [];
+    if(w) parts.push(w+" WBB");
+    if(m) parts.push(m+" MBB");
+    return parts.join(" + ");
+  }
+
+  if(!scheduledGames.length){
+    // All TBD
+    sumEl.textContent = genderBreakdown(allGames) + " games — times TBD";
+  } else {
+    const wbbG = scheduledGames.filter(g=>g.gender==='W');
+    const mbbG = scheduledGames.filter(g=>g.gender==='M');
+    let parts = [];
+    if(wbbG.length) parts.push(wbbG.length+" WBB");
+    if(mbbG.length) parts.push(mbbG.length+" MBB");
+    const totals = parts.join(" + ");
+    const allMins = scheduledGames.map(g=>toLocalMin(g.time));
+    const first = Math.min(...allMins);
+    const lastEnd = Math.max(...allMins)+120;
+    function minToStr(m){let h=Math.floor(m/60)%24,mm=m%60,ap=h>=12?'PM':'AM';if(h>12)h-=12;if(h===0)h=12;return h+(mm>0?':'+String(mm).padStart(2,'0'):'')+' '+ap;}
+    const _tzAbbr = _isUS?_tzInfo.abbr:'ET';
+    const endStr = (lastEnd%1440===0||lastEnd>=1440)?'midnight':minToStr(lastEnd)+' '+_tzAbbr;
+    let summary = totals + " games · "+minToStr(first)+" – "+endStr;
+    if(tbdGames.length) summary += " · +" + genderBreakdown(tbdGames) + " times TBD";
+    sumEl.textContent = summary;
+  }
+
+  // Determine which nets have games
+  const visibleNets = (activeFilter==='wbb') ? WBB_NETS : (activeFilter==='mbb') ? MBB_NETS : ALL_NETS;
+  const netsUsed = visibleNets.filter(n=>allGames.some(g=>g.net===n));
+
+  if(!netsUsed.length){
+    container.innerHTML="<div class='future-note'>No games found for this day/filter.</div>";
+    return;
+  }
+
+  const realGames = allGames.filter(g=>toLocalMin(g.time)!==null);
+  if(!realGames.length){
+    container.innerHTML="<div class='future-note'>Game times not yet announced — check back soon.</div>";
+    return;
+  }
+
+  // Max simultaneous games: sweep every minute, find peak overlap
+  let maxSimul = 0;
+  const schedMins = realGames.map(g => toLocalMin(g.time)).filter(Boolean);
+  if(schedMins.length) {
+    const sweepStart = Math.min(...schedMins);
+    const sweepEnd   = Math.max(...schedMins) + DURATION;
+    for(let t = sweepStart; t <= sweepEnd; t++) {
+      const live = realGames.filter(g => {
+        const s = toLocalMin(g.time);
+        return s && t >= s && t < s + DURATION;
+      }).length;
+      if(live > maxSimul) maxSimul = live;
+    }
+  }
+  note.style.display = maxSimul >= 2 ? "block" : "none";
+  if(maxSimul >= 2) note.textContent = "You'd need " + maxSimul + " screens to catch every game live at peak overlap today!";
+
+  const mins = realGames.map(g=>toLocalMin(g.time)).filter(Boolean);
+  const dayStart = Math.floor((Math.min(...mins)-15)/30)*30;
+  const dayEnd   = Math.ceil((Math.max(...mins)+DURATION+15)/30)*30;
+  const totalMin = dayEnd-dayStart;
+  const totalPx  = totalMin*PX_PER_MIN;
+
+  const ticks=[];for(let t=dayStart;t<=dayEnd;t+=30)ticks.push(t);
+  const nowN=new Date();
+  const todStr=nowN.toLocaleDateString("en-US",{weekday:"short",month:"short",day:"numeric"}).replace(",","");
+  const isToday=activeDay===todStr;
+  const nowMin=nowN.getHours()*60+nowN.getMinutes();
+  const showNow=isToday&&nowMin>=dayStart&&nowMin<=dayEnd;
+  const nowPct=showNow?((nowMin-dayStart)/totalMin*100):null;
+
+  let html="<div class='grid-wrap'>";
+  html+="<div class='grid-header'>";
+  html+="<div class='corner' style='width:"+TIME_COL_W+"px;min-width:"+TIME_COL_W+"px'>"+_tzLabel+"</div>";
+  netsUsed.forEach(n=>{
+    const cls = WBB_NETS.includes(n)?'wbb-ch':MBB_NETS.includes(n)?'mbb-ch':'';
+    html+="<div class='ch-head "+cls+"'>"+n+"</div>";
+  });
+  html+="</div>";
+
+  html+="<div class='grid-body'>";
+  // Time column
+  html+="<div class='time-col' style='width:"+TIME_COL_W+"px;min-width:"+TIME_COL_W+"px;height:"+totalPx+"px;position:relative'>";
+  ticks.forEach(t=>{
+    const yPct=(t-dayStart)/totalMin*100;
+    const h24=Math.floor(t/60),m=t%60,ap=h24>=12?"PM":"AM",h12=h24>12?h24-12:(h24===0?12:h24);
+    const lbl=m===0?(h12+" "+ap):(h12+":"+String(m).padStart(2,"0"));
+    html+="<div class='time-label' style='top:"+yPct+"%'>"+lbl+"</div>";
+    html+="<div style='position:absolute;right:0;left:0;top:"+yPct+"%;height:1px;background:var(--border)'></div>";
+  });
+  if(nowPct!==null)html+="<div style='position:absolute;right:0;left:0;top:"+nowPct+"%;height:2px;background:var(--red);opacity:0.8'></div>";
+  html+="</div>";
+
+  // Game columns
+  html+="<div style='display:flex;flex:1;height:"+totalPx+"px;position:relative'>";
+  ticks.forEach(t=>{
+    const yPct=(t-dayStart)/totalMin*100;
+    html+="<div style='position:absolute;left:0;right:0;top:"+yPct+"%;height:1px;background:var(--border);opacity:"+(t%60===0?0.5:0.2)+";z-index:0'></div>";
+  });
+  if(nowPct!==null)html+="<div class='now-line' style='top:"+nowPct+"%'><span class='now-label'>NOW</span></div>";
+
+  // WBB/MBB section divider line
+  if(activeFilter==='both'){
+    const wbbCount = netsUsed.filter(n=>WBB_NETS.includes(n)).length;
+    if(wbbCount>0 && wbbCount<netsUsed.length){
+      const divPct = wbbCount/netsUsed.length*100;
+      html+="<div style='position:absolute;top:0;bottom:0;left:"+divPct+"%;width:2px;background:var(--border2);z-index:6;opacity:0.6'></div>";
+    }
+  }
+
+  const wandSVG="<svg width='10' height='10' viewBox='0 0 10 10' style='margin-left:2px;flex-shrink:0'><line x1='5' y1='0' x2='5' y2='3' stroke='#7c3aed' stroke-width='1.2' stroke-linecap='round'/><line x1='5' y1='7' x2='5' y2='10' stroke='#7c3aed' stroke-width='1.2' stroke-linecap='round'/><line x1='0' y1='5' x2='3' y2='5' stroke='#7c3aed' stroke-width='1.2' stroke-linecap='round'/><line x1='7' y1='5' x2='10' y2='5' stroke='#7c3aed' stroke-width='1.2' stroke-linecap='round'/><line x1='1.5' y1='1.5' x2='3.5' y2='3.5' stroke='#7c3aed' stroke-width='1' stroke-linecap='round'/><line x1='6.5' y1='6.5' x2='8.5' y2='8.5' stroke='#7c3aed' stroke-width='1' stroke-linecap='round'/><line x1='8.5' y1='1.5' x2='6.5' y2='3.5' stroke='#7c3aed' stroke-width='1' stroke-linecap='round'/><line x1='1.5' y1='8.5' x2='3.5' y2='6.5' stroke='#7c3aed' stroke-width='1' stroke-linecap='round'/><circle cx='5' cy='5' r='1.5' fill='#7c3aed'/></svg>";
+  const bubbleSVG="<svg width='20' height='18' viewBox='0 0 20 18' style='margin-left:3px;flex-shrink:0;vertical-align:middle'><circle cx='7.5' cy='10' r='6' fill='rgba(56,189,248,0.15)' stroke='rgba(56,189,248,0.7)' stroke-width='1.1'/><circle cx='5.5' cy='8' r='1.8' fill='white' opacity='0.55'/><circle cx='8.5' cy='7' r='0.7' fill='white' opacity='0.45'/><circle cx='14.5' cy='7.5' r='3.5' fill='rgba(56,189,248,0.12)' stroke='rgba(56,189,248,0.6)' stroke-width='0.9'/><circle cx='13.2' cy='6' r='1' fill='white' opacity='0.55'/><circle cx='15' cy='13.5' r='2.2' fill='rgba(56,189,248,0.1)' stroke='rgba(56,189,248,0.55)' stroke-width='0.8'/><circle cx='14' cy='12.5' r='0.6' fill='white' opacity='0.5'/></svg>";
+
+  netsUsed.forEach((net,ni)=>{
+    const netGames=realGames.filter(g=>g.net===net);
+    const leftPct=ni/netsUsed.length*100;
+    const widthPct=1/netsUsed.length*100;
+    html+="<div style='position:absolute;left:"+leftPct+"%;width:"+widthPct+"%;top:0;bottom:0;"+(ni<netsUsed.length-1?"border-right:1px solid var(--border)":"")+"'>";
+
+    netGames.forEach(g=>{
+      const s=toMin(g.time);if(!s)return;
+      const isWBB = g.gender==='W';
+      const isMBB = g.gender==='M';
+      const urlBase = isWBB
+        ? (g.gameId?"https://www.espn.com/womens-college-basketball/game/_/gameId/"+g.gameId:"")
+        : (g.gameId?"https://www.espn.com/mens-college-basketball/game/_/gameId/"+g.gameId:"https://www.cbssports.com/college-basketball/");
+      const yPct=(s-dayStart)/totalMin*100;
+      const hPct=DURATION/totalMin*100;
+      const isFinal=g.status==="final";
+      const awayWon=isFinal&&g.ascore!=null&&g.ascore>g.hscore;
+      const homeWon=isFinal&&g.hscore!=null&&g.hscore>g.ascore;
+      const awayCls=isFinal?(awayWon?"winner":"loser"):"";
+      const homeCls=isFinal?(homeWon?"winner":"loser"):"";
+      const awayLogoHtml=g.awayLogo?"<img src='"+g.awayLogo+"' class='team-logo'>":"";
+      const homeLogoHtml=g.homeLogo?"<img src='"+g.homeLogo+"' class='team-logo'>":"";
+      const awaySeeds=g.away.match(/^[(]([0-9]+)[)]/);
+      const homeSeeds=g.home.match(/^[(]([0-9]+)[)]/);
+      const awaySeed=awaySeeds?parseInt(awaySeeds[1]):null;
+      const homeSeed=homeSeeds?parseInt(homeSeeds[1]):null;
+      const isUpset=isFinal&&awaySeed&&homeSeed&&((awayWon&&awaySeed>homeSeed)||(homeWon&&homeSeed>awaySeed));
+      const barCls=(isWBB?"game-bar wbb-bar":"game-bar mbb-bar")+(isUpset?" upset":"");
+      const genderLbl=isWBB?"WBB":"MBB";
+      const genderCls=isWBB?"wbb":"mbb";
+      const awayWand=cinderellaTeams.has(g.away.replace(/^[(][0-9]+[)] */,"")+"|"+g.gender)?wandSVG:"";
+      const homeWand=cinderellaTeams.has(g.home.replace(/^[(][0-9]+[)] */,"")+"|"+g.gender)?wandSVG:"";
+      const awayBubble=isBubbleForDay(g.away,g.gender,g.day)?bubbleSVG:"";
+      const homeBubble=isBubbleForDay(g.home,g.gender,g.day)?bubbleSVG:"";
+      const nameW=window.innerWidth<600;
+      const awayName=nameW?(g.awayAbbr||g.awayShort||g.away):g.away;
+      const homeName=nameW?(g.homeAbbr||g.homeShort||g.home):g.home;
+
+      if(urlBase)html+="<a href='"+urlBase+"' target='_blank' style='text-decoration:none;color:inherit;display:contents'>";
+      html+="<div class='"+barCls+"' style='top:"+yPct+"%;height:"+hPct+"%'>";
+      html+="<div style='position:absolute;top:3px;right:4px;font-size:7px;color:var(--text3);opacity:0.7;pointer-events:none'>open ↗</div>";
+      const roundLbl=getRoundLabel(g.day,g.gender);
+      html+="<div class='bar-gender "+genderCls+"'>"+genderLbl+(roundLbl?" · "+roundLbl:"")+"</div>";
+      const cinLabel=(cinderellaTeams.has(g.away.replace(/^[(][0-9]+[)] */,"")+"|"+g.gender)||cinderellaTeams.has(g.home.replace(/^[(][0-9]+[)] */,"")+"|"+g.gender))?"<span style='font-size:7px;font-weight:800;color:#7c3aed;margin-left:5px;letter-spacing:.04em'>CINDERELLA</span>":"";
+      if(g.reg&&g.reg!=="FF"&&g.reg!=="F4"&&g.reg!=="CHAMP"&&g.reg!=="S"&&g.reg!=="E"&&g.reg!=="W"&&g.reg!=="MW"){
+        html+="<div class='bar-pod r-"+g.reg+"' style='display:flex;align-items:center'>"+g.reg+cinLabel+"</div>";
+      } else if(g.reg) {
+        html+="<div class='bar-pod' style='color:var(--text3);display:flex;align-items:center'>"+g.reg+cinLabel+"</div>";
+      } else if(cinLabel) {
+        html+="<div class='bar-pod' style='display:flex;align-items:center'>"+cinLabel+"</div>";
+      }
+      html+="<div class='bar-team "+awayCls+"'>"+awayLogoHtml+awayName+awayWand+awayBubble+"</div>";
+      html+="<div class='bar-team "+homeCls+"'>"+homeLogoHtml+homeName+homeWand+homeBubble+"</div>";
+      if(isFinal&&g.ascore!=null)html+="<div class='bar-score-line'>"+g.ascore+" – "+g.hscore+"</div>";
+      if(isUpset)html+="<div class='upset-label'>UNDERDOG UPSET</div>";
+      if(!_isET&&g.time&&g.time!=='TBD'&&g.time!=='12:00 AM'){
+        const lt=toLocalTime(g.time);
+        if(lt!==g.time){const _tDisp=lt.replace(':00','');html+="<div style='font-size:7px;color:var(--text3);margin-top:1px'>"+_tDisp+" "+(_isUS?_tzInfo.abbr:'ET')+" start</div>";}
+      }
+      if(g.venue&&g.venue!=="TBD")html+="<div class='bar-venue'>"+g.venue+"</div>";
+      if(urlBase)html+="<div class='bar-link'>Open page &#8599;</div>";
+      html+="</div>";
+      if(urlBase)html+="</a>";
+    });
+    html+="</div>";
+  });
+  html+="</div></div></div>";
+  container.innerHTML=html;
+}
+
+// ─────────────────────────────────────────────
+// NAV
+// ─────────────────────────────────────────────
+function navStep(dir){
+  const idx=days.indexOf(activeDay),ni=idx+dir;
+  if(ni<0||ni>=days.length)return;
+  activeDay=days[ni];
+  document.querySelectorAll(".day-btn").forEach((b,i)=>{
+    b.classList.remove("active");
+    if(days[i]===activeDay){b.classList.add("active");b.scrollIntoView({behavior:"smooth",block:"nearest",inline:"center"});}
+  });
+  updateNavArrows();render();
+}
+function updateNavArrows(){
+  const idx=days.indexOf(activeDay);
+  const l=document.getElementById("navLeft"),r=document.getElementById("navRight");
+  if(l)l.style.display=idx===0?"none":"flex";
+  if(r)r.style.display=idx===days.length-1?"none":"flex";
+}
+
+// ─────────────────────────────────────────────
+// SWIPE
+// ─────────────────────────────────────────────
+let _tx=0,_ty=0;
+document.addEventListener('touchstart',e=>{_tx=e.touches[0].clientX;_ty=e.touches[0].clientY;},{passive:true});
+document.addEventListener('touchend',e=>{
+  const dx=e.changedTouches[0].clientX-_tx,dy=e.changedTouches[0].clientY-_ty;
+  if(Math.abs(dx)<50||Math.abs(dx)<Math.abs(dy)*1.5)return;
+  navStep(dx<0?1:-1);
+},{passive:true});
+
+// ─────────────────────────────────────────────
+// STICKY HEIGHT
+// ─────────────────────────────────────────────
+function updateStickyHeight(){
+  const ph=document.querySelector('body>div[style*="sticky"]');
+  const phH = ph ? ph.offsetHeight : 0;
+  if(ph) document.documentElement.style.setProperty('--header-h', phH+'px');
+  const sd=document.getElementById('stickyDay');
+  const sdH = sd ? sd.offsetHeight : 0;
+  // grid-header must sit below persistent header + sticky day bar combined
+  document.documentElement.style.setProperty('--sticky-h', (phH + sdH)+'px');
+}
+updateStickyHeight();
+window.addEventListener('resize',updateStickyHeight);
+
+// ─────────────────────────────────────────────
+// VISIBILITY RELOAD
+// ─────────────────────────────────────────────
+let _ha=null;
+document.addEventListener('visibilitychange',()=>{
+  if(document.hidden){_ha=Date.now();}
+  else{if(_ha&&Date.now()-_ha>15*60*1000){location.reload();}_ha=null;}
+});
+
+// ─────────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────────
+buildTabs();render();updateStickyHeight();updateNavArrows();
+</script>
+</body>
+</html>
