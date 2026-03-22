@@ -764,7 +764,7 @@ function render(){
     html+="<div style='position:absolute;left:"+leftPct+"%;width:"+widthPct+"%;top:0;bottom:0;"+(ni<netsUsed.length-1?"border-right:1px solid var(--border)":"")+"'>";
 
     netGames.forEach(g=>{
-      const s=toMin(g.time);if(!s)return;
+      const s=toLocalMin(g.time);if(!s)return;
       const isWBB = g.gender==='W';
       const isMBB = g.gender==='M';
       const urlBase = isWBB
