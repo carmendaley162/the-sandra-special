@@ -490,7 +490,7 @@ function toLocalMin(etStr){
   if(ap==='PM'&&h!==12)h+=12;if(ap==='AM'&&h===12)h=0;
   return h*60+m;
 }
-function toMin(t){if(!t||t==='TBD'||t==='12:00 AM')return null;const[hm,ap]=t.split(' ');const parts=hm.split(':');let h=Number(parts[0]),m=parts.length>1?Number(parts[1]):0;if(ap==='PM'&&h!==12)h+=12;if(ap==='AM'&&h===12)h=0;return h*60+m;}
+// toMin removed — use toLocalMin everywhere for consistency
 
 const _tzSubEl=document.getElementById('tzSubtitle');
 if(_tzSubEl){
@@ -598,12 +598,12 @@ function render(){
     const roundInfo = INFO[activeDay];
     if(!roundInfo) return;
     const todayGames = G.filter(g=>g.day===activeDay&&g.gender===gender);
-    const todayWithTime = todayGames.filter(g=>toMin(g.time)!==null).length;
+    const todayWithTime = todayGames.filter(g=>toLocalMin(g.time)!==null).length;
     const todayTBD = todayGames.length - todayWithTime;
     if(todayTBD === 0) return;
     const partnerDay = roundInfo.partner;
     const partnerGames = partnerDay ? G.filter(g=>g.day===partnerDay&&g.gender===gender) : [];
-    const partnerWithTime = partnerGames.filter(g=>toMin(g.time)!==null).length;
+    const partnerWithTime = partnerGames.filter(g=>toLocalMin(g.time)!==null).length;
     let blurb = "";
     if(todayWithTime===0 && partnerWithTime===0){
       if(partnerDay){
@@ -614,7 +614,7 @@ function render(){
     } else {
       blurb = todayTBD+" more "+roundInfo.round+" game"+(todayTBD===1?"":"s")+" on "+activeDay+" TBD — check back for the full slate.";
     }
-    const noTimeGames = todayGames.filter(g=>toMin(g.time)===null&&(g.away!=="TBD"||g.home!=="TBD"));
+    const noTimeGames = todayGames.filter(g=>toLocalMin(g.time)===null&&(g.away!=="TBD"||g.home!=="TBD"));
     if(noTimeGames.length){
       const rows = noTimeGames.map(g=>{
         const a = g.away==="TBD"?"TBD":(g.awayShort||g.away);
