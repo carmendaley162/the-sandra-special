@@ -188,7 +188,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
   .bar-team.loser { color: var(--text3); }
   .upset-label { font-size: 8px; font-weight: 800; color: var(--text2); letter-spacing: .06em; margin-top: 2px; text-transform: uppercase; }
   .bar-score-line { font-size: 10px; font-weight: 700; color: var(--text); margin-top: 2px; white-space: nowrap; }
-  .bar-venue { font-size: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text3); margin-top: 1px; }
+  .bar-venue { font-size: 8px; overflow: hidden; text-overflow: ellipsis; color: var(--text3); margin-top: 1px; line-height: 1.3; }
   .bar-link { font-size: 7px; color: var(--text3); margin-top: auto; padding-top: 2px; text-align: right; opacity: 0.65; }
   .game-bar:hover .bar-link, .game-bar:active .bar-link { opacity: 1; color: var(--wbb); }
   .game-bar.mbb-bar:hover .bar-link, .game-bar.mbb-bar:active .bar-link { color: var(--mbb); }
@@ -820,7 +820,12 @@ function render(){
         const lt=toLocalTime(g.time);
         if(lt){const _tDisp=lt.replace(':00','');html+="<div style='font-size:7px;color:var(--text3);margin-top:1px'>"+_tDisp+" "+(_isUS?_tzInfo.abbr:'ET')+" start</div>";}
       }
-      if(g.venue&&g.venue!=="TBD")html+="<div class='bar-venue'>"+g.venue+"</div>";
+      if(g.venue&&g.venue!=="TBD"){
+        const vparts=g.venue.split(', ');
+        const vArena=vparts[0];
+        const vCity=vparts.slice(1).join(', ');
+        html+="<div class='bar-venue'>"+vArena+(vCity?"<br>"+vCity:"")+"</div>";
+      }
       if(urlBase)html+="<div class='bar-link'>Open page &#8599;</div>";
       html+="</div>";
       if(urlBase)html+="</a>";
