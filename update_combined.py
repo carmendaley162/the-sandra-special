@@ -484,11 +484,13 @@ function toLocalTime(etStr){
 function toLocalMin(etStr){
   if(!etStr||etStr==='TBD'||etStr==='12:00 AM')return null;
   const local=toLocalTime(etStr);if(!local||local==='TBD'||local==='12:00 AM')return null;
-  const[hm,ap]=local.split(' ');let[h,m]=hm.split(':').map(Number);
+  const[hm,ap]=local.split(' ');
+  const parts=hm.split(':');
+  let h=Number(parts[0]),m=parts.length>1?Number(parts[1]):0;
   if(ap==='PM'&&h!==12)h+=12;if(ap==='AM'&&h===12)h=0;
   return h*60+m;
 }
-function toMin(t){if(!t||t==='TBD'||t==='12:00 AM')return null;const[hm,ap]=t.split(' ');let[h,m]=hm.split(':').map(Number);if(ap==='PM'&&h!==12)h+=12;if(ap==='AM'&&h===12)h=0;return h*60+m;}
+function toMin(t){if(!t||t==='TBD'||t==='12:00 AM')return null;const[hm,ap]=t.split(' ');const parts=hm.split(':');let h=Number(parts[0]),m=parts.length>1?Number(parts[1]):0;if(ap==='PM'&&h!==12)h+=12;if(ap==='AM'&&h===12)h=0;return h*60+m;}
 
 const _tzSubEl=document.getElementById('tzSubtitle');
 if(_tzSubEl){
@@ -789,12 +791,13 @@ function render(){
       const homeWand=cinderellaTeams.has(g.home.replace(/^[(][0-9]+[)] */,"")+"|"+g.gender)?wandSVG:"";
       const awayBubble=isBubbleForDay(g.away,g.gender,g.day)?bubbleSVG:"";
       const homeBubble=isBubbleForDay(g.home,g.gender,g.day)?bubbleSVG:"";
-      function fmtName(s){
+      const isMobile = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+      function fmtMobile(s){
         const m=s.match(/^[(]([0-9]+)[)] *(.+)$/);
         return m ? m[2]+' ('+m[1]+')' : s;
       }
-      const awayName=fmtName(g.awayAbbr||g.awayShort||g.away);
-      const homeName=fmtName(g.homeAbbr||g.homeShort||g.home);
+      const awayName=isMobile?fmtMobile(g.awayAbbr||g.awayShort||g.away):g.away;
+      const homeName=isMobile?fmtMobile(g.homeAbbr||g.homeShort||g.home):g.home;
 
       if(urlBase)html+="<a href='"+urlBase+"' target='_blank' style='text-decoration:none;color:inherit;display:contents'>";
       html+="<div class='"+barCls+"' style='top:"+yPct+"%;height:"+hPct+"%'>";
