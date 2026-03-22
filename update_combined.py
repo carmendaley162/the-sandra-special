@@ -816,9 +816,9 @@ function render(){
       html+="<div class='bar-team "+homeCls+"'>"+homeLogoHtml+homeName+homeWand+homeBubble+"</div>";
       if(isFinal&&g.ascore!=null)html+="<div class='bar-score-line'>"+g.ascore+" – "+g.hscore+"</div>";
       if(isUpset)html+="<div class='upset-label'>UNDERDOG UPSET</div>";
-      if(!_isET&&g.time&&g.time!=='TBD'&&g.time!=='12:00 AM'){
+      if(g.time&&g.time!=='TBD'&&g.time!=='12:00 AM'){
         const lt=toLocalTime(g.time);
-        if(lt!==g.time){const _tDisp=lt.replace(':00','');html+="<div style='font-size:7px;color:var(--text3);margin-top:1px'>"+_tDisp+" "+(_isUS?_tzInfo.abbr:'ET')+" start</div>";}
+        if(lt){const _tDisp=lt.replace(':00','');html+="<div style='font-size:7px;color:var(--text3);margin-top:1px'>"+_tDisp+" "+(_isUS?_tzInfo.abbr:'ET')+" start</div>";}
       }
       if(g.venue&&g.venue!=="TBD")html+="<div class='bar-venue'>"+g.venue+"</div>";
       if(urlBase)html+="<div class='bar-link'>Open page &#8599;</div>";
