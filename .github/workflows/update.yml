@@ -2,11 +2,11 @@ name: Update Sandra Special
 
 on:
   push:
-    branches: [main]
+    branches: [main, dev]
   schedule:
-    - cron: '*/15 0-4,14-23 17-23 3 *'   # Mar 17-23
-    - cron: '*/15 0-4,14-23 26-30 3 *'   # Mar 26-30
-    - cron: '*/15 0-4,14-23 3-6 4 *'     # Apr 3-6
+    - cron: '*/15 0-4,14-23 17-23 3 *'
+    - cron: '*/15 0-4,14-23 26-30 3 *'
+    - cron: '*/15 0-4,14-23 3-6 4 *'
   workflow_dispatch:
 
 jobs:
