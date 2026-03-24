@@ -519,7 +519,7 @@ checkRotate();
 // ─────────────────────────────────────────────
 const now0=new Date();
 const todayStr=now0.toLocaleDateString("en-US",{weekday:"short",month:"short",day:"numeric"}).replace(",","");
-const todayDay=days.find(d=>d===todayStr)||days[0];
+const _todayDate=new Date(now0.getFullYear(),now0.getMonth(),now0.getDate());const todayDay=days.find(d=>d===todayStr)||days.find(d=>{const p=d.match(/(\w+) (\d+)/);if(!p)return false;const months={Jan:0,Feb:1,Mar:2,Apr:3,May:4,Jun:5,Jul:6,Aug:7,Sep:8,Oct:9,Nov:10,Dec:11};const dd=new Date(now0.getFullYear(),months[p[1]],parseInt(p[2]));return dd>=_todayDate;})||days[days.length-1];
 let activeDay=todayDay;
 
 function buildTabs(){
@@ -549,8 +549,8 @@ const WBB_ROUND_INFO = {
   "Sat Mar 28":{total:4,partner:"Fri Mar 27",partnerShort:"the 27th",round:"WBB Sweet 16"},
   "Sun Mar 29":{total:2,partner:null,partnerShort:null,round:"WBB Elite Eight"},
   "Mon Mar 30":{total:2,partner:null,partnerShort:null,round:"WBB Elite Eight"},
-  "Fri Apr 3":{total:2,partner:null,partnerShort:null,round:"WBB Final Four"},
-  "Sun Apr 5":{total:1,partner:null,partnerShort:null,round:"WBB Championship"},
+  "Fri Apr 3":{total:2,partner:null,partnerShort:null,round:"WBB Final Four",staticBlurb:"2 WBB Final Four semifinal games at Mortgage Matchup Center in Phoenix. First tip-off at 7 PM ET on ESPN — second semifinal starts ~30 min after the first game ends."},
+  "Sun Apr 5":{total:1,partner:null,partnerShort:null,round:"WBB Championship",staticBlurb:"WBB NCAA Championship game at Mortgage Matchup Center in Phoenix. Tip-off at 3:30 PM ET on ABC."},
 };
 const MBB_ROUND_INFO = {
   "Sat Mar 21":{total:8,partner:"Sun Mar 22",partnerShort:"the 22nd",round:"MBB Second Round"},
@@ -559,8 +559,8 @@ const MBB_ROUND_INFO = {
   "Fri Mar 27":{total:4,partner:"Thu Mar 26",partnerShort:"the 26th",round:"MBB Sweet 16"},
   "Sat Mar 28":{total:2,partner:null,partnerShort:null,round:"MBB Elite Eight"},
   "Sun Mar 29":{total:2,partner:null,partnerShort:null,round:"MBB Elite Eight"},
-  "Sat Apr 4":{total:2,partner:null,partnerShort:null,round:"MBB Final Four"},
-  "Mon Apr 6":{total:1,partner:null,partnerShort:null,round:"MBB Championship"},
+  "Sat Apr 4":{total:2,partner:null,partnerShort:null,round:"MBB Final Four",staticBlurb:"2 MBB Final Four semifinal games at Lucas Oil Stadium in Indianapolis. Tip-offs at 6 PM ET and 8:30 PM ET on TBS."},
+  "Mon Apr 6":{total:1,partner:null,partnerShort:null,round:"MBB Championship",staticBlurb:"MBB NCAA Championship game at Lucas Oil Stadium in Indianapolis. Tip-off at 8:30 PM ET on TBS."},
 };
 
 function render(){
@@ -573,7 +573,7 @@ function render(){
   const note      = document.getElementById("overlapNote");
   note.style.display = "none";
 
-  document.getElementById("stickyDayLabel").textContent = "Viewing "+(activeDay===todayDay?"TODAY":activeDay);
+  document.getElementById("stickyDayLabel").textContent = "Viewing "+(activeDay===todayDay?(days.includes(todayStr)?"TODAY":"NEXT"):activeDay);
 
   // Cinderella banner
   const cinBanner = document.getElementById("cinderellaBanner");
@@ -598,6 +598,10 @@ function render(){
   [["W", WBB_ROUND_INFO], ["M", MBB_ROUND_INFO]].forEach(([gender, INFO])=>{
     const roundInfo = INFO[activeDay];
     if(!roundInfo) return;
+    if(roundInfo.staticBlurb){
+      tbdLines.push(roundInfo.staticBlurb);
+      return;
+    }
     const todayGames = G.filter(g=>g.day===activeDay&&g.gender===gender);
     const todayWithTime = todayGames.filter(g=>toLocalMin(g.time)!==null).length;
     const todayTBD = todayGames.length - todayWithTime;
@@ -675,13 +679,17 @@ function render(){
   const netsUsed = visibleNets.filter(n=>allGames.some(g=>g.net===n));
 
   if(!netsUsed.length){
-    container.innerHTML="<div class='future-note'>No games found for this day/filter.</div>";
+    const _hasBlurb = [WBB_ROUND_INFO, MBB_ROUND_INFO].some(INFO=>(INFO[activeDay]||{}).staticBlurb);
+    container.innerHTML="";
+    if(!_hasBlurb) container.innerHTML="<div class='future-note'>No games found for this day/filter.</div>";
     return;
   }
 
   const realGames = allGames.filter(g=>toLocalMin(g.time)!==null);
   if(!realGames.length){
-    container.innerHTML="<div class='future-note'>Game times not yet announced — check back soon.</div>";
+    const hasStaticBlurb = [WBB_ROUND_INFO, MBB_ROUND_INFO].some(INFO=>(INFO[activeDay]||{}).staticBlurb);
+    container.innerHTML="";
+    if(!hasStaticBlurb) container.innerHTML="<div class='future-note'>Game times not yet announced — check back soon.</div>";
     return;
   }
 
@@ -1028,7 +1036,10 @@ def get_time(event):
             return match.group(1).strip()
         date_str = event.get("date", "")
         if date_str:
-            dt = datetime.strptime(date_str, "%Y-%m-%dT%H:%MZ")
+            try:
+                dt = datetime.strptime(date_str, "%Y-%m-%dT%H:%MZ")
+            except ValueError:
+                dt = datetime.strptime(date_str, "%Y-%m-%dT%H:%M:%SZ")
             dt_et = dt - timedelta(hours=4)   # UTC → ET (rough — good enough for display)
             h, m = dt_et.hour, dt_et.minute
             ap = "PM" if h >= 12 else "AM"
